@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Compliance - Schengen Calculator & Travel Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .nav {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: background 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .nav a.active {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            padding: 60px 0;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            margin: 60px 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .feature-item p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            border-radius: 20px;
+            margin: 60px 0;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .pricing-preview {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .pricing-preview h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .price-period {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .trial-highlight {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 40px 0;
+            opacity: 0.8;
+        }
+
+        .disclaimer {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 40px 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .square-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 80%;
+                max-width: 300px;
+            }
+
+            .features {
+                padding: 40px 20px;
+            }
+
+            .features h2 {
+                font-size: 2rem;
+            }
+
+            .cta-section {
+                padding: 40px 20px;
+            }
+
+            .cta-section h2 {
+                font-size: 2rem;
+            }
+
+            .nav a {
+                margin: 0 10px;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="/" class="active">Home</a>
+            <a href="/schengen/" onclick="trackNavigation('calculator')">Calculator</a>
+            <a href="/subscribe.html" onclick="trackNavigation('subscribe')">Subscribe</a>
+        </nav>
+
+        <section class="hero">
+            <h1>Travel Compliance</h1>
+            <p>Professional Schengen calculator and travel compliance tools to help you stay organized and compliant during your European travels.</p>
+            
+            <div class="cta-buttons">
+                <a href="/schengen/" class="btn btn-primary" onclick="trackNavigation('calculator_hero')">Try Calculator Free</a>
+                <a href="/subscribe.html" class="btn btn-secondary" onclick="trackNavigation('subscribe_hero')">View Plans & Pricing</a>
+            </div>
+
+            <div class="square-badge">
+                💳 Secure payments powered by Square
+            </div>
+
+            <div class="disclaimer">
+                <strong>Important:</strong> This calculator is a planning tool only. Border authorities make final decisions on entry and duration of stay.
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Why Choose Our Calculator?</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <h3>Clear Explanations</h3>
+                    <p>Unlike basic calculators that just show numbers, we explain WHY you have that many days remaining and HOW the 90/180 rule works.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🗓️</div>
+                    <h3>Visual Planning</h3>
+                    <p>See your allowance on every calendar date. Plan multiple trips and see how they interact with visual feedback.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💾</div>
+                    <h3>Save Your History</h3>
+                    <p>No more re-entering your travel dates every time. Your history is saved and can be easily edited and organized.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚠️</div>
+                    <h3>Proactive Warnings</h3>
+                    <p>Get alerted before potential conflicts. Many travelers only discover problems when it's too late to change plans.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <h3>Mobile Friendly</h3>
+                    <p>Access your compliance data anywhere, anytime. Perfect for checking your status while traveling.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Direct Support</h3>
+                    <p>Get helpful support when planning trips. We'll help you understand how the tool works and general Schengen rules.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <h2>Ready to Stay Compliant?</h2>
+            <p>Join travelers who trust our calculator to help them navigate Schengen compliance with confidence.</p>
+            
+            <div class="pricing-preview">
+                <h3>Travel Compliance Pro</h3>
+                <div class="price">£3.99<span class="price-period">/month</span></div>
+                <div class="trial-highlight">🎉 14-day free trial included!</div>
+                <p>Unlimited calculations • Visual calendar • Travel history • Clear explanations • Direct support</p>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="/subscribe.html" class="btn btn-primary" onclick="trackNavigation('subscribe_cta')">Start Free Trial</a>
+                <a href="/schengen/" class="btn btn-secondary" onclick="trackNavigation('calculator_cta')">Try Calculator First</a>
+            </div>
+
+            <p style="font-size: 0.9rem; margin-top: 30px; opacity: 0.8;">
+                Secure Square payments • Cancel anytime • 30-day money-back guarantee
+            </p>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; 2025 Travel Compliance. Helping travelers stay organized and compliant.</p>
+            <p style="font-size: 0.9rem; margin-top: 10px;">
+                This is a planning tool only. Always verify current immigration requirements.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Safe element access utilities
+        function safeElement(selector) {
+            try {
+                const element = document.querySelector(selector);
+                if (!element) {
+                    console.warn(`Element not found: ${selector}`);
+                    return null;
+                }
+                return element;
+            } catch (error) {
+                console.warn(`Error finding element ${selector}:`, error);
+                return null;
+            }
+        }
+
+        function safeAddEventListener(selector, event, handler) {
+            try {
+                const element = safeElement(selector);
+                if (element) {
+                    element.addEventListener(event, handler);
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.warn(`Error adding event listener to ${selector}:`, error);
+                return false;
+            }
+        }
+
+        // Add smooth scroll for anchor links with error handling
+        function initializeSmoothScroll() {
+            try {
+                const anchorLinks = document.querySelectorAll('a[href^="#"]');
+                anchorLinks.forEach(anchor => {
+                    if (anchor) {
+                        anchor.addEventListener('click', function (e) {
+                            try {
+                                e.preventDefault();
+                                const target = document.querySelector(this.getAttribute('href'));
+                                if (target) {
+                                    target.scrollIntoView({
+                                        behavior: 'smooth'
+                                    });
+                                }
+                            } catch (error) {
+                                console.warn('Smooth scroll error:', error);
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                console.warn('Smooth scroll initialization error:', error);
+            }
+        }
+
+        // Initialize intersection observer for animations with error handling
+        function initializeAnimations() {
+            try {
+                const featureItems = document.querySelectorAll('.feature-item');
+                
+                if (featureItems.length === 0) {
+                    console.warn('No feature items found for animation');
+                    return;
+                }
+                
+                const observerOptions = {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+
+                const observer = new IntersectionObserver(function(entries) {
+                    try {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting && entry.target) {
+                                entry.target.style.opacity = '1';
+                                entry.target.style.transform = 'translateY(0)';
+                            }
+                        });
+                    } catch (error) {
+                        console.warn('Animation observer error:', error);
+                    }
+                }, observerOptions);
+
+                featureItems.forEach((item, index) => {
+                    if (item) {
+                        try {
+                            item.style.opacity = '0';
+                            item.style.transform = 'translateY(30px)';
+                            item.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                            observer.observe(item);
+                        } catch (error) {
+                            console.warn(`Error setting up animation for item ${index}:`, error);
+                        }
+                    }
+                });
+            } catch (error) {
+                console.warn('Animation initialization error:', error);
+            }
+        }
+
+        // Track navigation clicks
+        function trackNavigation(source) {
+            trackEvent('navigation_click', { 
+                source: source,
+                page: 'landing',
+                payment_provider: 'square'
+            });
+        }
+
+        // Handle potential navigation issues
+        function handleNavigationClick(event, targetUrl, fallbackUrls = []) {
+            try {
+                // Let the browser try the normal navigation first
+                return true;
+            } catch (error) {
+                console.warn('Navigation error:', error);
+                
+                // Try fallback URLs if provided
+                for (const fallbackUrl of fallbackUrls) {
+                    try {
+                        window.location.href = fallbackUrl;
+                        return false;
+                    } catch (fallbackError) {
+                        console.warn('Fallback navigation failed:', fallbackError);
+                    }
+                }
+                
+                // If all else fails, show helpful message
+                alert(`Navigation issue detected. Please try manually navigating to: ${targetUrl}`);
+                return false;
+            }
+        }
+
+        // Add click handlers to navigation links for better debugging
+        function initializeNavigationDebugging() {
+            try {
+                // Add debugging to all calculator links
+                const calculatorLinks = document.querySelectorAll('a[href="/schengen/"]');
+                calculatorLinks.forEach(link => {
+                    if (link) {
+                        link.addEventListener('click', function(e) {
+                            console.log('🔗 Calculator link clicked:', this.href);
+                            trackNavigation('calculator_debug');
+                            
+                            // Check if this is a local development environment
+                            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                                console.log('💡 Local development detected - link behavior may differ');
+                            }
+                        });
+                    }
+                });
+                
+                // Add debugging to subscription links
+                const subscribeLinks = document.querySelectorAll('a[href="/subscribe.html"]');
+                subscribeLinks.forEach(link => {
+                    if (link) {
+                        link.addEventListener('click', function(e) {
+                            console.log('🔗 Subscribe link clicked:', this.href);
+                            trackNavigation('subscribe_debug');
+                        });
+                    }
+                });
+                
+            } catch (error) {
+                console.warn('Navigation debugging setup error:', error);
+            }
+        }
+        function debugNavigation() {
+            console.log('🔍 Navigation Debug Info:');
+            console.log('Calculator links should go to: /schengen/');
+            console.log('Subscription links should go to: /subscribe.html');
+            console.log('Current location:', window.location.href);
+            
+            // Test if calculator page exists
+            fetch('/schengen/')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ Calculator page is accessible');
+                    } else {
+                        console.warn('❌ Calculator page not found - check file structure');
+                    }
+                })
+                .catch(error => {
+                    console.warn('❌ Cannot reach calculator page:', error);
+                });
+        }
+
+        // Track user interactions with error handling
+        function trackEvent(eventName, properties) {
+            try {
+                // In production, integrate with your analytics service
+                console.log('Event:', eventName, properties);
+            } catch (error) {
+                console.warn('Analytics tracking error:', error);
+            }
+        }
+
+        // Initialize click tracking with error handling
+        function initializeClickTracking() {
+            try {
+                document.addEventListener('click', function(e) {
+                    try {
+                        if (e.target && e.target.classList.contains('btn')) {
+                            const buttonText = e.target.textContent || 'Unknown';
+                            const destination = e.target.getAttribute('href') || 'Unknown';
+                            trackEvent('button_click', { 
+                                button: buttonText, 
+                                destination: destination,
+                                page: 'landing',
+                                payment_provider: 'square'
+                            });
+                        }
+                    } catch (error) {
+                        console.warn('Click tracking error:', error);
+                    }
+                });
+            } catch (error) {
+                console.warn('Click tracking initialization error:', error);
+            }
+        }
+
+        // Main initialization function with comprehensive error handling
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Initialize all features with individual error handling
+                initializeSmoothScroll();
+                initializeAnimations();
+                initializeClickTracking();
+                initializeNavigationDebugging();
+                
+                // Track page visit
+                trackEvent('landing_page_visit', { 
+                    payment_provider: 'square'
+                });
+                
+                // Debug navigation (helpful for troubleshooting)
+                debugNavigation();
+                
+                console.log('🏠 Landing page loaded successfully with Square integration');
+                console.log('🔗 Navigation links: Calculator=/schengen/ | Subscribe=/subscribe.html');
+                
+            } catch (error) {
+                console.error('Page initialization error:', error);
+                // Continue with basic functionality even if some features fail
+            }
+        });
+
+        // Error boundary for unhandled errors
+        window.addEventListener('error', function(e) {
+            console.error('Unhandled error:', e.error);
+            // Don't show error to user unless it's critical
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+            e.preventDefault(); // Prevent the default browser error handling
+        });
+
+        // Graceful degradation message for very old browsers
+        try {
+            if (!window.Promise || !window.fetch) {
+                console.warn('Some features may not work in this browser version');
+            }
+        } catch (error) {
+            console.warn('Browser compatibility check failed:', error);
+        }
+    </script>
+</body>
+</html>
