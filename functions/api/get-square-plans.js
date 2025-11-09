@@ -5,7 +5,6 @@ import { Client, Environment } from 'squareup';
 
 export async function onRequestGet({ request, env, params }) {
   try {
-    // Initialize Square client
     const client = new Client({
       accessToken: env.SQUARE_ACCESS_TOKEN,
       environment: env.SQUARE_ENVIRONMENT === 'production' ? Environment.Production : Environment.Sandbox,
@@ -13,8 +12,6 @@ export async function onRequestGet({ request, env, params }) {
     });
     
     const catalogApi = client.catalogApi;
-    
-    // Get all subscription plans
     const { result } = await catalogApi.listCatalog(undefined, 'SUBSCRIPTION_PLAN');
     
     return new Response(JSON.stringify({
@@ -31,8 +28,7 @@ export async function onRequestGet({ request, env, params }) {
   } catch (error) {
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
-      details: error
+      error: error.message
     }, null, 2), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
