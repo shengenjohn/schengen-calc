@@ -247,65 +247,140 @@
     </div>
 
     <script>
-        // Square Plan IDs from your API
-        const SQUARE_PLANS = {
-            pro: {
-                planId: 'UU4A3ASRMGEJWRWHWRFQOQOC',
-                monthly: { variationId: 'TKUZNUNASUW62W7YRGRYDQ42', price: 299 },
-                annual: { variationId: '4UKSQDEJRTATGGV2YTDIWD3W', price: 2400 }
+    // Square Configuration
+    const SQUARE_APPLICATION_ID = 'sq0idp-jlH9_mDjTh9a_iQsKRUBFw';
+    const SQUARE_LOCATION_ID = 'LQKB1MEK1J4GP'; // Your location ID
+    
+    // Square Plan IDs from your API
+    const SQUARE_PLANS = {
+        pro: {
+            planId: 'UU4A3ASRMGEJWRWHWRFQOQOC',
+            monthly: { 
+                variationId: 'TKUZNUNASUW62W7YRGRYDQ42', 
+                price: 299,
+                itemId: '6LXHGKQIBHXHIUSZKK2LRBNE' // Monthly item ID
             },
-            business: {
-                planId: 'EL5OOIKUI2WVGKXJGRZINDZC',
-                monthly: { variationId: 'FQZUO66IPP273WHRVPSC6WTX', price: 1000 },
-                annual: { variationId: 'D4JMAEWP6QSRXL7AUNP7VXG5', price: 10000 }
-            }
-        };
-
-        // Square Application ID
-        const SQUARE_APPLICATION_ID = 'sq0idp-jlH9_mDjTh9a_iQsKRUBFw';
-
-        async function startSubscription(planType, frequency) {
-            try {
-                showLoading(true);
-                hideMessages();
-
-                const plan = SQUARE_PLANS[planType];
-                const planDetails = plan[frequency];
-
-                // For now, simulate the subscription process
-                // In a real implementation, you'd integrate with Square Web Payments SDK
-                
-                setTimeout(() => {
-                    showLoading(false);
-                    showSuccess(`🎉 Success! Your ${planType} ${frequency} subscription has been created. You'll receive an email confirmation shortly.`);
-                }, 2000);
-
-            } catch (error) {
-                showLoading(false);
-                showError(`Failed to create subscription: ${error.message}`);
+            annual: { 
+                variationId: '4UKSQDEJRTATGGV2YTDIWD3W', 
+                price: 2400,
+                itemId: 'VEYQ5MH4WPOA6XAWHY7IXUK7' // Annual item ID
             }
         }
+    };
 
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
+    let payments;
+
+    // Initialize Square Payments
+    async function initializeSquare() {
+        try {
+            payments = Square.payments(SQUARE_APPLICATION_ID, SQUARE_LOCATION_ID);
+        } catch (error) {
+            console.error('Failed to initialize Square Payments:', error);
+        }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', initializeSquare);
+
+    async function startSubscription(planType, frequency) {
+        if (planType !== 'pro') {
+            showError('Business plan coming soon! Please choose the Pro plan to get started.');
+            return;
         }
 
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
+        try {
+            showLoading(true);
+            hideMessages();
 
-        function showSuccess(message) {
-            const successDiv = document.getElementById('success-message');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-        }
+            const plan = SQUARE_PLANS[planType];
+            const planDetails = plan[frequency];
 
-        function hideMessages() {
-            document.getElementById('error-message').style.display = 'none';
-            document.getElementById('success-message').style.display = 'none';
+            // Create payment request
+            const paymentRequest = payments.paymentRequest({
+                countryCode: 'GB',
+                currencyCode: 'GBP',
+                total: {
+                    amount: planDetails.price.toString(),
+                    label: `${planType.charAt(0).toUpperCase() + planType.slice(1)} Plan - ${frequency.charAt(0).toUpperCase() + frequency.slice(1)}`
+                }
+            });
+
+            // Create card payment method
+            const card = await payments.card();
+            await card.attach('#card-container');
+
+            // Handle payment
+            const result = await card.tokenize();
+            if (result.status === 'OK') {
+                // Send token to your backend for processing
+                await processPayment(result.token, planDetails, planType, frequency);
+            } else {
+                throw new Error(result.errors?.[0]?.detail || 'Payment tokenization failed');
+            }
+
+        } catch (error) {
+            showLoading(false);
+            showError(`Payment failed: ${error.message}`);
         }
-    </script>
+    }
+
+    async function processPayment(token, planDetails, planType, frequency) {
+        try {
+            // For now, simulate successful payment processing
+            // In production, you'd send this to your backend API
+            
+            const paymentData = {
+                sourceId: token,
+                planType: planType,
+                frequency: frequency,
+                amount: planDetails.price,
+                planId: SQUARE_PLANS[planType].planId,
+                variationId: planDetails.variationId
+            };
+
+            console.log('Payment data:', paymentData);
+
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            showLoading(false);
+            showSuccess(`🎉 Success! Your ${planType} ${frequency} subscription has been created. You'll receive an email confirmation shortly.`);
+            
+            // In production, redirect to success page
+            setTimeout(() => {
+                window.location.href = '/dashboard.html'; // or wherever you want to redirect
+            }, 3000);
+
+        } catch (error) {
+            showLoading(false);
+            showError(`Payment processing failed: ${error.message}`);
+        }
+    }
+
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+        
+        // Disable all buttons during loading
+        const buttons = document.querySelectorAll('.subscribe-btn');
+        buttons.forEach(btn => btn.disabled = show);
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function showSuccess(message) {
+        const successDiv = document.getElementById('success-message');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+    }
+
+    function hideMessages() {
+        document.getElementById('error-message').style.display = 'none';
+        document.getElementById('success-message').style.display = 'none';
+    }
+</script>
 </body>
 </html>
