@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribe - Schengen Calc</title>
+    <script type="application/javascript" src="https://web.squarecdn.com/v1/square.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .plans-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .plan-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .plan-card.popular {
+            position: relative;
+            border: 2px solid #ffd700;
+        }
+        
+        .plan-card.popular::before {
+            content: "Most Popular";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd700;
+            color: #333;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .plan-period {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 40px;
+        }
+        
+        .plan-features li {
+            padding: 8px 0;
+            font-size: 1rem;
+        }
+        
+        .plan-features li::before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .subscribe-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .subscribe-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subscribe-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .annual-savings {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #ffd700;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #ffcdd2;
+        }
+        
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #c8e6c9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Choose Your Plan</h1>
+            <p>Professional Schengen travel compliance tools to help you stay organized and compliant during your European travels.</p>
+        </div>
+        
+        <div class="plans-container">
+            <!-- Pro Plan -->
+            <div class="plan-card">
+                <div class="plan-name">Pro</div>
+                <div class="plan-price">£2.99</div>
+                <div class="plan-period">per month</div>
+                
+                <ul class="plan-features">
+                    <li>Unlimited calculations</li>
+                    <li>Visual calendar</li>
+                    <li>Travel history tracking</li>
+                    <li>Clear explanations</li>
+                    <li>Email support</li>
+                </ul>
+                
+                <button class="subscribe-btn" onclick="startSubscription('pro', 'monthly')">
+                    Start Pro Monthly
+                </button>
+                
+                <div style="margin-top: 20px;">
+                    <div class="annual-savings">Save £11.88 with annual payment!</div>
+                    <button class="subscribe-btn" onclick="startSubscription('pro', 'annual')" style="background: linear-gradient(135deg, #2196F3, #1976D2);">
+                        Pay £24 Annually
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Business Plan -->
+            <div class="plan-card popular">
+                <div class="plan-name">Business</div>
+                <div class="plan-price">£10</div>
+                <div class="plan-period">per month</div>
+                
+                <ul class="plan-features">
+                    <li>Everything in Pro</li>
+                    <li>Multiple traveler profiles</li>
+                    <li>Advanced reporting</li>
+                    <li>Calendar integration</li>
+                    <li>Document management</li>
+                    <li>Priority support</li>
+                    <li>Business API access</li>
+                </ul>
+                
+                <button class="subscribe-btn" onclick="startSubscription('business', 'monthly')">
+                    Start Business Monthly
+                </button>
+                
+                <div style="margin-top: 20px;">
+                    <div class="annual-savings">Save £20 with annual payment!</div>
+                    <button class="subscribe-btn" onclick="startSubscription('business', 'annual')" style="background: linear-gradient(135deg, #2196F3, #1976D2);">
+                        Pay £100 Annually
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="loading" class="loading">
+            <h3>Processing your subscription...</h3>
+            <p>Please wait while we set up your account.</p>
+        </div>
+        
+        <div id="error-message" class="error" style="display: none;"></div>
+        <div id="success-message" class="success" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Square Plan IDs from your API
+        const SQUARE_PLANS = {
+            pro: {
+                planId: 'UU4A3ASRMGEJWRWHWRFQOQOC',
+                monthly: { variationId: 'TKUZNUNASUW62W7YRGRYDQ42', price: 299 },
+                annual: { variationId: '4UKSQDEJRTATGGV2YTDIWD3W', price: 2400 }
+            },
+            business: {
+                planId: 'EL5OOIKUI2WVGKXJGRZINDZC',
+                monthly: { variationId: 'FQZUO66IPP273WHRVPSC6WTX', price: 1000 },
+                annual: { variationId: 'D4JMAEWP6QSRXL7AUNP7VXG5', price: 10000 }
+            }
+        };
+
+        // Square Application ID
+        const SQUARE_APPLICATION_ID = 'sq0idp-jlH9_mDjTh9a_iQsKRUBFw';
+
+        async function startSubscription(planType, frequency) {
+            try {
+                showLoading(true);
+                hideMessages();
+
+                const plan = SQUARE_PLANS[planType];
+                const planDetails = plan[frequency];
+
+                // For now, simulate the subscription process
+                // In a real implementation, you'd integrate with Square Web Payments SDK
+                
+                setTimeout(() => {
+                    showLoading(false);
+                    showSuccess(`🎉 Success! Your ${planType} ${frequency} subscription has been created. You'll receive an email confirmation shortly.`);
+                }, 2000);
+
+            } catch (error) {
+                showLoading(false);
+                showError(`Failed to create subscription: ${error.message}`);
+            }
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        function hideMessages() {
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
