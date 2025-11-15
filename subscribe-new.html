@@ -293,46 +293,37 @@
     document.addEventListener('DOMContentLoaded', initializeSquare);
 
     async function startSubscription(planType, frequency) {
-        if (planType !== 'pro') {
-            showError('Business plan coming soon! Please choose the Pro plan to get started.');
-            return;
-        }
-
-        try {
-            showLoading(true);
-            hideMessages();
-
-            const plan = SQUARE_PLANS[planType];
-            const planDetails = plan[frequency];
-
-            // Create payment request
-            const paymentRequest = payments.paymentRequest({
-                countryCode: 'GB',
-                currencyCode: 'GBP',
-                total: {
-                    amount: planDetails.price.toString(),
-                    label: `${planType.charAt(0).toUpperCase() + planType.slice(1)} Plan - ${frequency.charAt(0).toUpperCase() + frequency.slice(1)}`
-                }
-            });
-
-            // Create card payment method
-            const card = await payments.card();
-            await card.attach('#card-container');
-
-            // Handle payment
-            const result = await card.tokenize();
-            if (result.status === 'OK') {
-                // Send token to your backend for processing
-                await processPayment(result.token, planDetails, planType, frequency);
-            } else {
-                throw new Error(result.errors?.[0]?.detail || 'Payment tokenization failed');
-            }
-
-        } catch (error) {
-            showLoading(false);
-            showError(`Payment failed: ${error.message}`);
-        }
+    if (planType !== 'pro') {
+        showError('Business plan coming soon! Please choose the Pro plan to get started.');
+        return;
     }
+
+    try {
+        showLoading(true);
+        hideMessages();
+
+        const plan = SQUARE_PLANS[planType];
+        const planDetails = plan[frequency];
+
+        // Redirect to Square checkout URL (simpler approach)
+        const checkoutUrl = `https://squareup.com/appointments/book/LQKB1MEK1J4GP/L4HXQFM4K2ESN/start`;
+        
+        // For now, show success and redirect
+        setTimeout(() => {
+            showLoading(false);
+            showSuccess(`🎉 Redirecting to secure Square checkout for your ${planType} ${frequency} subscription...`);
+            
+            // Redirect after 3 seconds
+            setTimeout(() => {
+                window.open(checkoutUrl, '_blank');
+            }, 3000);
+        }, 1000);
+
+    } catch (error) {
+        showLoading(false);
+        showError(`Error: ${error.message}`);
+    }
+}
 
     async function processPayment(token, planDetails, planType, frequency) {
         try {
