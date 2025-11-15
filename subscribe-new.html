@@ -246,6 +246,16 @@
         <div id="success-message" class="success" style="display: none;"></div>
     </div>
 
+<div id="card-container" style="display: none; max-width: 400px; margin: 20px auto; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+    <h3 style="text-align: center; margin-bottom: 20px;">Enter Payment Details</h3>
+    <div id="card-element">
+        <!-- Square card form will be inserted here -->
+    </div>
+    <button id="card-button" onclick="processCardPayment()" style="margin-top: 20px; width: 100%;" class="subscribe-btn">
+        Complete Payment
+    </button>
+</div>
+
     <script>
     // Square Configuration
     const SQUARE_APPLICATION_ID = 'sq0idp-jlH9_mDjTh9a_iQsKRUBFw';
