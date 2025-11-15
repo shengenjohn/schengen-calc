@@ -1,18 +1,23 @@
 /**
- * Get Square Subscription Plans - Debug endpoint
+ * Get Square Subscription Plans - Using direct API calls
  */
-import { Client, Environment } from 'squareup';
-
 export async function onRequestGet({ request, env, params }) {
   try {
-    const client = new Client({
-      accessToken: env.SQUARE_ACCESS_TOKEN,
-      environment: env.SQUARE_ENVIRONMENT === 'production' ? Environment.Production : Environment.Sandbox,
-      applicationId: env.SQUARE_APPLICATION_ID
+    // Direct Square API call instead of SDK
+    const response = await fetch('https://connect.squareup.com/v2/catalog/list?types=SUBSCRIPTION_PLAN', {
+      method: 'GET',
+      headers: {
+        'Square-Version': '2023-10-18',
+        'Authorization': `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
     });
     
-    const catalogApi = client.catalogApi;
-    const { result } = await catalogApi.listCatalog(undefined, 'SUBSCRIPTION_PLAN');
+    if (!response.ok) {
+      throw new Error(`Square API error: ${response.status} ${response.statusText}`);
+    }
+    
+    const result = await response.json();
     
     return new Response(JSON.stringify({
       success: true,
