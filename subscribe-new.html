@@ -302,22 +302,26 @@
         showLoading(true);
         hideMessages();
 
-        const plan = SQUARE_PLANS[planType];
-        const planDetails = plan[frequency];
+        // Use your actual Square Payment Links
+        const checkoutUrls = {
+            'pro-monthly': 'https://square.link/u/8aNBKwTM',
+            'pro-annual': 'https://square.link/u/b3EFsnM2'
+        };
 
-        // Redirect to Square checkout URL (simpler approach)
-        const checkoutUrl = `https://squareup.com/appointments/book/LQKB1MEK1J4GP/L4HXQFM4K2ESN/start`;
+        const checkoutUrl = checkoutUrls[`${planType}-${frequency}`];
         
-        // For now, show success and redirect
+        if (!checkoutUrl) {
+            throw new Error('Payment link not found');
+        }
+        
+        // Show success and redirect immediately
+        showLoading(false);
+        showSuccess(`🎉 Redirecting to secure Square checkout...`);
+        
+        // Redirect after 2 seconds
         setTimeout(() => {
-            showLoading(false);
-            showSuccess(`🎉 Redirecting to secure Square checkout for your ${planType} ${frequency} subscription...`);
-            
-            // Redirect after 3 seconds
-            setTimeout(() => {
-                window.open(checkoutUrl, '_blank');
-            }, 3000);
-        }, 1000);
+            window.open(checkoutUrl, '_blank');
+        }, 2000);
 
     } catch (error) {
         showLoading(false);
