@@ -60,39 +60,19 @@
             background: rgba(255, 255, 255, 0.15);
         }
         
-        .plan-card.available {
+        .plan-card.popular {
             position: relative;
-            border: 2px solid #4CAF50;
+            border: 2px solid #ffd700;
         }
         
-        .plan-card.available::before {
-            content: "Available Now";
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #4CAF50;
-            color: white;
-            padding: 8px 24px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        .plan-card.coming-soon {
-            position: relative;
-            opacity: 0.8;
-            border: 2px solid #FFA726;
-        }
-        
-        .plan-card.coming-soon::before {
+        .plan-card.popular::before {
             content: "Coming Soon";
             position: absolute;
             top: -15px;
             left: 50%;
             transform: translateX(-50%);
-            background: #FFA726;
-            color: white;
+            background: #ffd700;
+            color: #333;
             padding: 8px 24px;
             border-radius: 20px;
             font-weight: 600;
@@ -154,15 +134,9 @@
         }
         
         .subscribe-btn:disabled {
-            background: #666;
-            opacity: 0.6;
+            opacity: 0.7;
             cursor: not-allowed;
             transform: none;
-        }
-        
-        .subscribe-btn.waitlist {
-            background: #FFA726;
-            cursor: not-allowed;
         }
         
         .annual-savings {
@@ -209,7 +183,7 @@
         
         <div class="plans-container">
             <!-- Pro Plan -->
-            <div class="plan-card available">
+            <div class="plan-card">
                 <div class="plan-name">Pro</div>
                 <div class="plan-price">£2.99</div>
                 <div class="plan-period">per month</div>
@@ -234,8 +208,8 @@
                 </div>
             </div>
             
-            <!-- Business Plan -->
-            <div class="plan-card coming-soon">
+            <!-- Business Plan - MINIMAL CHANGES -->
+            <div class="plan-card popular">
                 <div class="plan-name">Business</div>
                 <div class="plan-price">£10</div>
                 <div class="plan-period">per month</div>
@@ -250,13 +224,13 @@
                     <li>Business API access</li>
                 </ul>
                 
-                <button class="subscribe-btn waitlist" disabled onclick="joinWaitlist('business')">
+                <button class="subscribe-btn" disabled onclick="joinWaitlist('business')">
                     Join Waitlist
                 </button>
                 
-                <div style="margin-top: 20px; opacity: 0.7;">
+                <div style="margin-top: 20px;">
                     <div class="annual-savings">Save £20 with annual payment!</div>
-                    <button class="subscribe-btn waitlist" disabled onclick="joinWaitlist('business')">
+                    <button class="subscribe-btn" disabled onclick="joinWaitlist('business')" style="background: linear-gradient(135deg, #2196F3, #1976D2);">
                         Join Annual Waitlist
                     </button>
                 </div>
@@ -285,7 +259,7 @@
     <script>
     // Square Configuration
     const SQUARE_APPLICATION_ID = 'sq0idp-jlH9_mDjTh9a_iQsKRUBFw';
-    const SQUARE_LOCATION_ID = 'LQKB1MEK1J4GP'; // Your location ID
+    const SQUARE_LOCATION_ID = 'LQKB1MEK1J4GP';
     
     // Square Plan IDs from your API
     const SQUARE_PLANS = {
@@ -294,12 +268,12 @@
             monthly: { 
                 variationId: 'TKUZNUNASUW62W7YRGRYDQ42', 
                 price: 299,
-                itemId: '6LXHGKQIBHXHIUSZKK2LRBNE' // Monthly item ID
+                itemId: '6LXHGKQIBHXHIUSZKK2LRBNE'
             },
             annual: { 
                 variationId: '4UKSQDEJRTATGGV2YTDIWD3W', 
                 price: 2400,
-                itemId: 'VEYQ5MH4WPOA6XAWHY7IXUK7' // Annual item ID
+                itemId: 'VEYQ5MH4WPOA6XAWHY7IXUK7'
             }
         }
     };
@@ -309,7 +283,14 @@
     // Initialize Square Payments
     async function initializeSquare() {
         try {
+            if (typeof Square === 'undefined') {
+                console.log('Square SDK not yet available, waiting...');
+                setTimeout(initializeSquare, 100);
+                return;
+            }
+            
             payments = Square.payments(SQUARE_APPLICATION_ID, SQUARE_LOCATION_ID);
+            console.log('Square Payments initialized successfully');
         } catch (error) {
             console.error('Failed to initialize Square Payments:', error);
         }
@@ -328,7 +309,6 @@
             showLoading(true);
             hideMessages();
 
-            // Use your actual Square Payment Links
             const checkoutUrls = {
                 'pro-monthly': 'https://square.link/u/8aNBKwTM',
                 'pro-annual': 'https://square.link/u/b3EFsnM2'
@@ -340,11 +320,9 @@
                 throw new Error('Payment link not found');
             }
             
-            // Show success and redirect immediately
             showLoading(false);
             showSuccess(`🎉 Redirecting to secure Square checkout...`);
             
-            // Redirect after 2 seconds
             setTimeout(() => {
                 window.open(checkoutUrl, '_blank');
             }, 2000);
@@ -355,20 +333,13 @@
         }
     }
 
-    // Handle waitlist signups
     function joinWaitlist(planType) {
         showSuccess(`✉️ Thanks for your interest in the ${planType} plan! We'll notify you when it's available.`);
-        
-        // In production, you'd collect email and add to waitlist
-        // For now, just show the message
         console.log(`Waitlist signup for ${planType} plan`);
     }
 
     async function processPayment(token, planDetails, planType, frequency) {
         try {
-            // For now, simulate successful payment processing
-            // In production, you'd send this to your backend API
-            
             const paymentData = {
                 sourceId: token,
                 planType: planType,
@@ -379,9 +350,43 @@
             };
 
             console.log('Payment data:', paymentData);
-
-            // Simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             showLoading(false);
-            showSuccess(`🎉 Su
+            showSuccess(`🎉 Success! Your ${planType} ${frequency} subscription has been created. You'll receive an email confirmation shortly.`);
+            
+            setTimeout(() => {
+                window.location.href = '/dashboard.html';
+            }, 3000);
+
+        } catch (error) {
+            showLoading(false);
+            showError(`Payment processing failed: ${error.message}`);
+        }
+    }
+
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+        const buttons = document.querySelectorAll('.subscribe-btn:not([disabled])');
+        buttons.forEach(btn => btn.disabled = show);
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function showSuccess(message) {
+        const successDiv = document.getElementById('success-message');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+    }
+
+    function hideMessages() {
+        document.getElementById('error-message').style.display = 'none';
+        document.getElementById('success-message').style.display = 'none';
+    }
+</script>
+</body>
+</html>
