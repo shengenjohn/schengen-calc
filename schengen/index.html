@@ -895,7 +895,7 @@
             <h1>🇪🇺 Travel Compliance</h1>
             <div style="margin-bottom: 15px;">
                 <a href="/" class="upgrade-btn" style="background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px; margin-right: 10px;">← Back to Home</a>
-                <a href="/subscribe.html" class="upgrade-btn" style="background: #10b981; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 600;">⚡ Upgrade for Business</a>
+                <a href="/business-waitlist.html" class="upgrade-btn" style="background: #10b981; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 600;">⚡ Upgrade for Business</a>
             </div>
             <div class="mode-toggle">
                 <button class="mode-btn active" onclick="setMode('expert')">Expert Mode</button>
@@ -918,7 +918,7 @@
             <h3 style="margin-bottom: 15px; color: white;">💼 Need This for Your Business?</h3>
             <p style="margin-bottom: 20px; opacity: 0.9;">Track multiple employees, get compliance reports, and never miss a violation with our Business plan.</p>
             <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <a href="/subscribe.html" style="background: white; color: #059669; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">View Business Plans</a>
+                <a href="/business-waitlist.html" style="background: white; color: #059669; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">Join Business Waitlist</a>
                 <button onclick="hideBusinessPrompt()" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer;">Maybe Later</button>
             </div>
         </div>
@@ -990,11 +990,11 @@
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3>🗓️ Plan Your Next Trip</h3>
-                <a href="/subscribe.html" style="background: #f59e0b; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 600;">📊 Get Reports</a>
+                <button onclick="showBusinessWaitlist()" style="background: #f59e0b; color: white; padding: 8px 16px; border: none; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 600; cursor: pointer;">📊 Get Reports</button>
             </div>
             <div id="planningHelper"></div>
             <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-top: 15px; text-align: center;">
-                <small style="color: #0369a1;">💡 <strong>Business users</strong> get automated alerts, PDF reports, and team dashboards. <a href="/subscribe.html" style="color: #0369a1; font-weight: 600;">Learn more →</a></small>
+                <small style="color: #0369a1;">💡 <strong>Business features coming soon!</strong> Join our waitlist for automated alerts, PDF reports, and team dashboards. <a href="/business-waitlist.html" style="color: #0369a1; font-weight: 600;">Join waitlist →</a></small>
             </div>
         </div>
 
@@ -1173,6 +1173,14 @@
             return false;
         }
 
+        // Show business waitlist function
+        function showBusinessWaitlist() {
+            alert('📊 Business Reports Coming Soon!\n\n• Automated compliance alerts\n• PDF travel reports\n• Team dashboards\n• API access\n\nJoin our waitlist to be notified when available!');
+            
+            // In production, redirect to waitlist page
+            window.location.href = '/business-waitlist.html';
+        }
+
         // Subscription and trial management
         function getSubscriptionStatus() {
             const trialEnd = localStorage.getItem('travelCompliance_trial_end');
@@ -1248,17 +1256,17 @@
                     <div class="paywall-pricing">
                         <strong>✨ Travel Compliance Pro</strong>
                         <div class="paywall-price">£2.99<span style="font-size: 1rem; font-weight: normal;">/month</span></div>
-                        <div style="background: rgba(76, 175, 80, 0.1); color: #2e7d32; padding: 8px; border-radius: 5px; margin: 10px 0; font-weight: 600;">
-                            🎉 14-day free trial included!
+                        <div style="background: rgba(37, 99, 235, 0.1); color: #1d4ed8; padding: 8px; border-radius: 5px; margin: 10px 0; font-weight: 600;">
+                            or £24.00/year (save £11.88!)
                         </div>
                         <p style="font-size: 0.9rem; margin: 10px 0;">
-                            Unlimited calculations • Visual calendar • Travel history • Clear explanations • Direct support
+                            3 free calculations to try • Unlimited calculations • Visual calendar • Travel history • Clear explanations • Direct support
                         </p>
                     </div>
                     
                     <div class="paywall-buttons">
-                        <a href="/subscribe.html" class="paywall-btn paywall-btn-primary">
-                            Start Free Trial
+                        <a href="/subscribe-new.html" class="paywall-btn paywall-btn-primary">
+                            Subscribe Now
                         </a>
                         <button onclick="closePaywall()" class="paywall-btn paywall-btn-secondary">
                             ← Back to Home
@@ -1270,7 +1278,7 @@
                     </div>
                     
                     <p style="font-size: 0.8rem; margin-top: 20px; color: #999;">
-                        No credit card required for trial • Cancel anytime • 30-day money-back guarantee
+                        Cancel anytime
                     </p>
                 </div>
             `;
@@ -2372,6 +2380,9 @@
 
         // Form submission
         document.addEventListener('DOMContentLoaded', function() {
+            // Test storage availability
+            testStorage();
+            
             const tripForm = safeElement('tripForm');
             if (tripForm) {
                 tripForm.addEventListener('submit', function(e) {
@@ -2428,6 +2439,12 @@
             updateSubscriptionStatus();
             updateDisplay();
             checkUrlParams();
+            
+            // Print initialization status to console
+            console.log('🧮 Schengen Calculator loaded successfully');
+            console.log('🔧 Developer password: travel2025dev');
+            console.log('💾 Storage method:', storageMethod);
+            console.log('📱 Developer shortcuts: Ctrl+Shift+D, triple-tap, double-click title');
         });
     </script>
 </body>
