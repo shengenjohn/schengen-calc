@@ -60,19 +60,39 @@
             background: rgba(255, 255, 255, 0.15);
         }
         
-        .plan-card.popular {
+        .plan-card.available {
             position: relative;
-            border: 2px solid #ffd700;
+            border: 2px solid #4CAF50;
         }
         
-        .plan-card.popular::before {
-            content: "Most Popular";
+        .plan-card.available::before {
+            content: "Available Now";
             position: absolute;
             top: -15px;
             left: 50%;
             transform: translateX(-50%);
-            background: #ffd700;
-            color: #333;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .plan-card.coming-soon {
+            position: relative;
+            opacity: 0.8;
+            border: 2px solid #FFA726;
+        }
+        
+        .plan-card.coming-soon::before {
+            content: "Coming Soon";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FFA726;
+            color: white;
             padding: 8px 24px;
             border-radius: 20px;
             font-weight: 600;
@@ -134,9 +154,15 @@
         }
         
         .subscribe-btn:disabled {
-            opacity: 0.7;
+            background: #666;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+        
+        .subscribe-btn.waitlist {
+            background: #FFA726;
+            cursor: not-allowed;
         }
         
         .annual-savings {
@@ -183,7 +209,7 @@
         
         <div class="plans-container">
             <!-- Pro Plan -->
-            <div class="plan-card">
+            <div class="plan-card available">
                 <div class="plan-name">Pro</div>
                 <div class="plan-price">£2.99</div>
                 <div class="plan-period">per month</div>
@@ -193,7 +219,7 @@
                     <li>Visual calendar</li>
                     <li>Travel history tracking</li>
                     <li>Clear explanations</li>
-                    <li>Email support</li>
+                    <li>Direct email support</li>
                 </ul>
                 
                 <button class="subscribe-btn" onclick="startSubscription('pro', 'monthly')">
@@ -209,7 +235,7 @@
             </div>
             
             <!-- Business Plan -->
-            <div class="plan-card popular">
+            <div class="plan-card coming-soon">
                 <div class="plan-name">Business</div>
                 <div class="plan-price">£10</div>
                 <div class="plan-period">per month</div>
@@ -224,14 +250,14 @@
                     <li>Business API access</li>
                 </ul>
                 
-                <button class="subscribe-btn" onclick="startSubscription('business', 'monthly')">
-                    Start Business Monthly
+                <button class="subscribe-btn waitlist" disabled onclick="joinWaitlist('business')">
+                    Join Waitlist
                 </button>
                 
-                <div style="margin-top: 20px;">
+                <div style="margin-top: 20px; opacity: 0.7;">
                     <div class="annual-savings">Save £20 with annual payment!</div>
-                    <button class="subscribe-btn" onclick="startSubscription('business', 'annual')" style="background: linear-gradient(135deg, #2196F3, #1976D2);">
-                        Pay £100 Annually
+                    <button class="subscribe-btn waitlist" disabled onclick="joinWaitlist('business')">
+                        Join Annual Waitlist
                     </button>
                 </div>
             </div>
@@ -293,41 +319,50 @@
     document.addEventListener('DOMContentLoaded', initializeSquare);
 
     async function startSubscription(planType, frequency) {
-    if (planType !== 'pro') {
-        showError('Business plan coming soon! Please choose the Pro plan to get started.');
-        return;
-    }
-
-    try {
-        showLoading(true);
-        hideMessages();
-
-        // Use your actual Square Payment Links
-        const checkoutUrls = {
-            'pro-monthly': 'https://square.link/u/8aNBKwTM',
-            'pro-annual': 'https://square.link/u/b3EFsnM2'
-        };
-
-        const checkoutUrl = checkoutUrls[`${planType}-${frequency}`];
-        
-        if (!checkoutUrl) {
-            throw new Error('Payment link not found');
+        if (planType !== 'pro') {
+            showError('Business plan coming soon! Please choose the Pro plan to get started.');
+            return;
         }
-        
-        // Show success and redirect immediately
-        showLoading(false);
-        showSuccess(`🎉 Redirecting to secure Square checkout...`);
-        
-        // Redirect after 2 seconds
-        setTimeout(() => {
-            window.open(checkoutUrl, '_blank');
-        }, 2000);
 
-    } catch (error) {
-        showLoading(false);
-        showError(`Error: ${error.message}`);
+        try {
+            showLoading(true);
+            hideMessages();
+
+            // Use your actual Square Payment Links
+            const checkoutUrls = {
+                'pro-monthly': 'https://square.link/u/8aNBKwTM',
+                'pro-annual': 'https://square.link/u/b3EFsnM2'
+            };
+
+            const checkoutUrl = checkoutUrls[`${planType}-${frequency}`];
+            
+            if (!checkoutUrl) {
+                throw new Error('Payment link not found');
+            }
+            
+            // Show success and redirect immediately
+            showLoading(false);
+            showSuccess(`🎉 Redirecting to secure Square checkout...`);
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.open(checkoutUrl, '_blank');
+            }, 2000);
+
+        } catch (error) {
+            showLoading(false);
+            showError(`Error: ${error.message}`);
+        }
     }
-}
+
+    // Handle waitlist signups
+    function joinWaitlist(planType) {
+        showSuccess(`✉️ Thanks for your interest in the ${planType} plan! We'll notify you when it's available.`);
+        
+        // In production, you'd collect email and add to waitlist
+        // For now, just show the message
+        console.log(`Waitlist signup for ${planType} plan`);
+    }
 
     async function processPayment(token, planDetails, planType, frequency) {
         try {
@@ -349,43 +384,4 @@
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             showLoading(false);
-            showSuccess(`🎉 Success! Your ${planType} ${frequency} subscription has been created. You'll receive an email confirmation shortly.`);
-            
-            // In production, redirect to success page
-            setTimeout(() => {
-                window.location.href = '/dashboard.html'; // or wherever you want to redirect
-            }, 3000);
-
-        } catch (error) {
-            showLoading(false);
-            showError(`Payment processing failed: ${error.message}`);
-        }
-    }
-
-    function showLoading(show) {
-        document.getElementById('loading').style.display = show ? 'block' : 'none';
-        
-        // Disable all buttons during loading
-        const buttons = document.querySelectorAll('.subscribe-btn');
-        buttons.forEach(btn => btn.disabled = show);
-    }
-
-    function showError(message) {
-        const errorDiv = document.getElementById('error-message');
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-    }
-
-    function showSuccess(message) {
-        const successDiv = document.getElementById('success-message');
-        successDiv.textContent = message;
-        successDiv.style.display = 'block';
-    }
-
-    function hideMessages() {
-        document.getElementById('error-message').style.display = 'none';
-        document.getElementById('success-message').style.display = 'none';
-    }
-</script>
-</body>
-</html>
+            showSuccess(`🎉 Su
