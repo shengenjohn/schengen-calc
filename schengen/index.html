@@ -1103,9 +1103,6 @@
             <div id="dev-login" style="display: block;">
                 <input type="password" id="dev-password" class="dev-input" placeholder="Enter developer password" />
                 <button onclick="authenticateDeveloper()" class="dev-btn" style="width: 100%;">Login</button>
-                <div style="font-size: 0.7rem; color: #ccc; margin-top: 8px; text-align: center;">
-                    Password: travel2025dev
-                </div>
             </div>
             
             <div id="dev-controls" style="display: none;">
@@ -1250,23 +1247,23 @@
             paywall.className = 'paywall-overlay';
             paywall.innerHTML = `
                 <div class="paywall-content">
-                    <h2>🔒 Subscription Required</h2>
-                    <p>You've used your 3 free calculations. To continue using the Schengen Calculator with unlimited access and advanced features, please subscribe to Travel Compliance Pro.</p>
+                    <h2>🔒 Travel Compliance Pro</h2>
+                    <p>You've used your 3 free calculations. Our Pro subscription is launching soon with unlimited access and advanced features!</p>
                     
                     <div class="paywall-pricing">
-                        <strong>✨ Travel Compliance Pro</strong>
-                        <div class="paywall-price">£2.99<span style="font-size: 1rem; font-weight: normal;">/month</span></div>
+                        <strong>✨ Coming Soon</strong>
+                        <div class="paywall-price">Pro Features</div>
                         <div style="background: rgba(37, 99, 235, 0.1); color: #1d4ed8; padding: 8px; border-radius: 5px; margin: 10px 0; font-weight: 600;">
-                            or £24.00/year (save £11.88!)
+                            🚀 Launching in January 2025
                         </div>
                         <p style="font-size: 0.9rem; margin: 10px 0;">
-                            3 free calculations to try • Unlimited calculations • Visual calendar • Travel history • Clear explanations • Direct support
+                            Unlimited calculations • Visual calendar • Travel history • PDF reports • Business features • API access
                         </p>
                     </div>
                     
                     <div class="paywall-buttons">
-                        <a href="/subscribe-new.html" class="paywall-btn paywall-btn-primary">
-                            Subscribe Now
+                        <a href="/waitlist.html" class="paywall-btn paywall-btn-primary">
+                            Join Waitlist
                         </a>
                         <button onclick="closePaywall()" class="paywall-btn paywall-btn-secondary">
                             ← Back to Home
@@ -1274,11 +1271,11 @@
                     </div>
                     
                     <div class="square-badge">
-                        💳 Secure Square payments
+                        🔔 Get notified when we launch
                     </div>
                     
                     <p style="font-size: 0.8rem; margin-top: 20px; color: #999;">
-                        Cancel anytime
+                        Join 1,000+ travelers already on our waitlist
                     </p>
                 </div>
             `;
@@ -1286,7 +1283,7 @@
             document.body.appendChild(paywall);
             
             // Track paywall show event
-            trackEvent('paywall_shown', { trigger: 'usage_limit', payment_provider: 'square' });
+            trackEvent('paywall_shown', { trigger: 'usage_limit', status: 'waitlist' });
         }
 
         function closePaywall() {
