@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Compliance Business - Join Waitlist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding-top: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .back-nav {
+            margin-bottom: 30px;
+        }
+        
+        .back-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        
+        .back-nav a:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+        }
+        
+        .business-logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .main-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .status-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+            text-align: left;
+        }
+        
+        .feature-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid #10b981;
+        }
+        
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .feature-benefits {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-benefits li {
+            color: #059669;
+            margin: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .feature-benefits li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .waitlist-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            text-align: center;
+        }
+        
+        .waitlist-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .waitlist-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .waitlist-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-input {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            background: white;
+            color: #333;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+        }
+        
+        .submit-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .privacy-note {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 15px;
+        }
+        
+        .stats-section {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin: 40px 0;
+            padding: 30px 0;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #10b981;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .pricing-preview {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .pricing-title {
+            color: #0369a1;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .pricing-note {
+            color: #0369a1;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-card {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .form-group {
+                flex-direction: column;
+            }
+            
+            .stats-section {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .container {
+                padding-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>💼 Travel Compliance Business</h1>
+            <p>Simple team compliance tracking for small businesses</p>
+        </header>
+        
+        <div class="back-nav">
+            <a href="/schengen">← Back to Calculator</a>
+        </div>
+        
+        <div class="main-card">
+            <div class="business-logo">🏢</div>
+            <h1 class="main-title">Business Plan</h1>
+            <p class="subtitle">Track compliance for your small team (up to 5 employees)</p>
+            <div class="status-badge">🔨 Coming Soon</div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">👥</div>
+                        <div class="feature-title">Small Team Tracking</div>
+                    </div>
+                    <div class="feature-description">
+                        Manage up to 5 employees' travel compliance in one simple dashboard.
+                    </div>
+                    <ul class="feature-benefits">
+                        <li>Track up to 5 team members</li>
+                        <li>Shared team dashboard</li>
+                        <li>Simple employee profiles</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔔</div>
+                        <div class="feature-title">Basic Alerts</div>
+                    </div>
+                    <div class="feature-description">
+                        Get email notifications when team members approach their travel limits.
+                    </div>
+                    <ul class="feature-benefits">
+                        <li>Email alerts for violations</li>
+                        <li>Weekly team summaries</li>
+                        <li>Simple notifications</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">Team Reports</div>
+                    </div>
+                    <div class="feature-description">
+                        Download simple CSV reports showing your team's travel compliance status.
+                    </div>
+                    <ul class="feature-benefits">
+                        <li>CSV export for team data</li>
+                        <li>Basic compliance summaries</li>
+                        <li>Travel history reports</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔒</div>
+                        <div class="feature-title">Secure Access</div>
+                    </div>
+                    <div class="feature-description">
+                        Password-protected team access with simple user management.
+                    </div>
+                    <ul class="feature-benefits">
+                        <li>Password-protected dashboards</li>
+                        <li>Basic user permissions</li>
+                        <li>Secure data storage</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pricing-preview">
+                <div class="pricing-title">🎯 Business Plan Pricing</div>
+                <div class="pricing-note">
+                    <strong>Business Plan:</strong> £10/month or £100/year (save £20!) • Up to 5 employees
+                    <br><br>
+                    <strong>Current Pro Plan:</strong> £2.99/month or £24/year • Individual use only
+                    <br><br>
+                    Join our waitlist to be notified when Business features are ready!
+                </div>
+            </div>
+        </div>
+        
+        <div class="waitlist-section">
+            <h2 class="waitlist-title">🔔 Join the Business Waitlist</h2>
+            <p class="waitlist-subtitle">Be first to know when our simple business features are ready. Perfect for small teams!</p>
+            
+            <form id="businessWaitlistForm" class="waitlist-form">
+                <div class="form-group">
+                    <input type="email" id="email" class="form-input" placeholder="Your business email" required>
+                    <button type="submit" class="submit-btn">Join Waitlist</button>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="company" class="form-input" placeholder="Company name">
+                    <select id="employees" class="form-input">
+                        <option value="">Team size...</option>
+                        <option value="2">2 employees</option>
+                        <option value="3">3 employees</option>
+                        <option value="4">4 employees</option>
+                        <option value="5">5 employees</option>
+                    </select>
+                </div>
+            </form>
+            
+            <p class="privacy-note">
+                We'll only email you about the Business plan launch. No spam, ever.
+            </p>
+        </div>
+        
+        <div class="main-card">
+            <div class="stats-section">
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Businesses Interested</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">£10</div>
+                    <div class="stat-label">Per Month</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Max Employees</div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="/schengen" style="color: #667eea; text-decoration: none; font-weight: 600; font-size: 1.1rem;">← Back to Calculator</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('businessWaitlistForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                company: document.getElementById('company').value,
+                employees: document.getElementById('employees').value,
+                timestamp: new Date().toISOString(),
+                type: 'business'
+            };
+            
+            // Here you would normally send to your D1 database
+            console.log('Business waitlist signup:', formData);
+            
+            // Show success message
+            alert('🎉 Thanks for your interest!\n\nWe\'ll email you when our simple business features are ready.\n\nPerfect for small teams like yours!');
+            
+            // Clear form
+            this.reset();
+            
+            // Track signup
+            console.log('Business waitlist tracked:', formData);
+        });
+        
+        // Track page view
+        console.log('Business waitlist page viewed:', {
+            timestamp: new Date().toISOString(),
+            referrer: document.referrer
+        });
+    </script>
+</body>
+</html>
