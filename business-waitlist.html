@@ -456,35 +456,75 @@
     </div>
     
     <script>
-        document.getElementById('businessWaitlistForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = {
-                email: document.getElementById('email').value,
-                company: document.getElementById('company').value,
-                employees: document.getElementById('employees').value,
-                timestamp: new Date().toISOString(),
-                type: 'business'
-            };
-            
-            // Here you would normally send to your D1 database
-            console.log('Business waitlist signup:', formData);
-            
-            // Show success message
-            alert('🎉 Thanks for your interest!\n\nWe\'ll email you when our simple business features are ready.\n\nPerfect for small teams like yours!');
-            
-            // Clear form
-            this.reset();
-            
-            // Track signup
-            console.log('Business waitlist tracked:', formData);
-        });
+    // Your actual Worker URL
+    const API_ENDPOINT = 'https://waitlist-api.likelylad9.workers.dev/';
+
+    document.getElementById('businessWaitlistForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        // Track page view
-        console.log('Business waitlist page viewed:', {
-            timestamp: new Date().toISOString(),
-            referrer: document.referrer
-        });
-    </script>
-</body>
-</html>
+        const submitBtn = e.target.querySelector('.submit-btn');
+        const originalText = submitBtn.textContent;
+        
+        // Show loading state
+        submitBtn.textContent = 'Joining...';
+        submitBtn.disabled = true;
+        
+        const formData = {
+            email: document.getElementById('email').value,
+            company: document.getElementById('company').value,
+            employees: parseInt(document.getElementById('employees').value) || null,
+            plan_type: 'business',
+            referrer: document.referrer,
+            timestamp: new Date().toISOString()
+        };
+        
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Success message
+                alert('🎉 Welcome to the Business waitlist!\n\n✅ You\'ll be the first to know when our team features launch.\n✅ Pricing: £10/month or £100/year\n✅ Perfect for teams up to 5 employees');
+                
+                // Clear form
+                this.reset();
+                
+                // Track successful signup
+                console.log('Business waitlist signup successful:', {
+                    email: formData.email,
+                    company: formData.company,
+                    id: result.id
+                });
+                
+            } else {
+                // Handle specific error cases
+                if (result.already_exists) {
+                    alert('📧 You\'re already on our Business waitlist!\n\nWe\'ll email you as soon as team features are ready.');
+                } else {
+                    alert(`❌ Signup failed: ${result.error}\n\nPlease try again or contact support.`);
+                }
+            }
+            
+        } catch (error) {
+            console.error('Business waitlist error:', error);
+            alert('❌ Connection error. Please check your internet and try again.');
+        } finally {
+            // Reset button
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+    
+    // Track page view
+    console.log('Business waitlist page viewed:', {
+        timestamp: new Date().toISOString(),
+        referrer: document.referrer
+    });
+</script>
