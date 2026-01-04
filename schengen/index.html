@@ -1133,6 +1133,47 @@
     </div>
 
     <script>
+        // Authentication Check - Add at the very top of your calculator's main script
+(function() {
+    // Check if user is logged in
+    const authToken = localStorage.getItem('travel_auth_token');
+    const userData = localStorage.getItem('travel_user');
+    
+    if (!authToken || !userData) {
+        // User not logged in, redirect to login
+        console.log('User not authenticated, redirecting to login...');
+        window.location.href = '/login.html?redirect=calculator';
+        return;
+    }
+    
+    // Validate token format (basic check)
+    if (!authToken.includes('-') || authToken.length < 20) {
+        // Invalid token, clear storage and redirect
+        localStorage.removeItem('travel_auth_token');
+        localStorage.removeItem('travel_user');
+        window.location.href = '/login.html?redirect=calculator';
+        return;
+    }
+    
+    // Parse user data
+    let currentUser = null;
+    try {
+        currentUser = JSON.parse(userData);
+        console.log('User authenticated:', currentUser.firstName, currentUser.email);
+    } catch (e) {
+        // Corrupted user data, redirect to login
+        localStorage.removeItem('travel_auth_token');
+        localStorage.removeItem('travel_user');
+        window.location.href = '/login.html?redirect=calculator';
+        return;
+    }
+    
+    // Store globally for use in calculator
+    window.currentUser = currentUser;
+    window.authToken = authToken;
+    
+    console.log(`✅ Welcome ${currentUser.firstName}! Subscription: ${currentUser.subscription}`);
+})();
         // Safe element access utilities
         function safeElement(id) {
             const element = document.getElementById(id);
@@ -2447,3 +2488,4 @@
 </body>
 
 </html>
+
