@@ -1231,31 +1231,28 @@
 }
 
         function updateSubscriptionStatus() {
-            const status = getSubscriptionStatus();
-            const subscriptionStatus = safeElement('subscription-status');
-            const usageWarning = safeElement('usage-warning');
-            const usageCount = parseInt(localStorage.getItem('travelCompliance_usage') || '0');
-            
-            // Hide all status displays first
-            safeSetStyle('subscription-status', 'display', 'none');
-            safeSetStyle('usage-warning', 'display', 'none');
-            
-            if (status.status === 'trial') {
-                safeSetStyle('subscription-status', 'display', 'block');
-                safeSetContent('subscription-text', `🎉 Free Trial Active - ${status.daysLeft} days remaining`);
-            } else if (status.status === 'subscribed') {
-                safeSetStyle('subscription-status', 'display', 'block');
-                const statusElement = safeElement('subscription-status');
-                if (statusElement) {
-                    statusElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                }
-                safeSetContent('subscription-text', '✨ Travel Compliance Pro - Unlimited Access');
-            } else {
-                safeSetStyle('usage-warning', 'display', 'block');
-                const remaining = Math.max(0, 3 - usageCount);
-                safeSetContent('usage-text', `Free calculations remaining: ${remaining}/3`);
-            }
+    const status = getSubscriptionStatus();
+    const subscriptionStatus = safeElement('subscription-status');
+    const usageWarning = safeElement('usage-warning');
+    const usageCount = parseInt(localStorage.getItem('travelCompliance_usage') || '0');
+    
+    // Hide all status displays first
+    safeSetStyle('subscription-status', 'display', 'none');
+    safeSetStyle('usage-warning', 'display', 'none');
+    
+    if (status.status === 'unlimited') {
+        safeSetStyle('subscription-status', 'display', 'block');
+        const statusElement = safeElement('subscription-status');
+        if (statusElement) {
+            statusElement.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
         }
+        safeSetContent('subscription-text', `✨ ${window.currentUser.firstName} - Unlimited Access`);
+    } else {
+        safeSetStyle('usage-warning', 'display', 'block');
+        const remaining = Math.max(0, 3 - usageCount);
+        safeSetContent('usage-text', `Free calculations remaining: ${remaining}/3`);
+    }
+}
 
         function incrementUsage() {
             const current = parseInt(localStorage.getItem('travelCompliance_usage') || '0');
@@ -1264,14 +1261,14 @@
         }
 
         function checkUsageLimit() {
-            const status = getSubscriptionStatus();
-            if (status.status !== 'free') {
-                return true; // Unlimited for trial/subscription
-            }
-            
-            const usageCount = parseInt(localStorage.getItem('travelCompliance_usage') || '0');
-            return usageCount < 3; // 3 free calculations
-        }
+    const status = getSubscriptionStatus();
+    if (status.status === 'unlimited') {
+        return true; // Unlimited access for owner accounts
+    }
+    
+    const usageCount = parseInt(localStorage.getItem('travelCompliance_usage') || '0');
+    return usageCount < 3; // 3 free calculations
+}
 
         function showPaywall() {
             const paywall = document.createElement('div');
@@ -2478,5 +2475,6 @@
 </body>
 
 </html>
+
 
 
