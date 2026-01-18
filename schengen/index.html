@@ -1725,46 +1725,72 @@ async function apiCall(endpoint, options = {}) {
         }
 
         // Enhanced load trips with storage detection
-        function loadTrips() {
-            try {
-                if (storageAvailable) {
-                    const saved = localStorage.getItem('schengenTrips');
-                    trips = saved ? JSON.parse(saved) : [];
-                    console.log(`✅ Loaded ${trips.length} trips from localStorage`);
-                } else {
-                    // Try to load from sessionStorage as fallback
-                    const saved = sessionStorage.getItem('schengenTrips_session');
-                    trips = saved ? JSON.parse(saved) : [];
-                    console.log(`⚠️ Loaded ${trips.length} trips from sessionStorage (temporary)`);
-                }
-            } catch (error) {
-                console.error('Error loading trips:', error);
-                trips = [];
+        async function loadTrips() {
+    try {
+        // Load from API if user is authenticated
+        if (window.currentUser && window.authToken) {
+            const response = await apiCall(`/trips?user=${encodeURIComponent(window.currentUser.email)}`);
+            
+            if (response.success) {
+                // Convert API format to calculator format
+                trips = response.trips.map(dbTrip => ({
+                    id: dbTrip.id.toString(),
+                    entryDate: dbTrip.departure_date,
+                    exitDate: dbTrip.return_date, 
+                    country: dbTrip.destination_country,
+                    tripType: 'tourism', // Default type
+                    notes: '',
+                    days: calculateDaysBetween(dbTrip.departure_date, dbTrip.return_date)
+                }));
+                
+                console.log(`✅ Loaded ${trips.length} trips from database`);
+                return;
             }
         }
+        
+        // Fallback to localStorage for migration
+        const saved = localStorage.getItem('schengenTrips');
+        if (saved) {
+            trips = JSON.parse(saved);
+            console.log(`⚠️ Loaded ${trips.length} trips from localStorage (will migrate to database)`);
+            
+            // Auto-migrate localStorage trips to database
+            if (window.currentUser && trips.length > 0) {
+                await migrateTripsToDatabase();
+            }
+        } else {
+            trips = [];
+        }
+    } catch (error) {
+        console.error('Error loading trips:', error);
+        // Fallback to localStorage
+        const saved = localStorage.getItem('schengenTrips');
+        trips = saved ? JSON.parse(saved) : [];
+    }
+}
 
         // Enhanced save trips with fallback
-        function saveTrips() {
-            try {
-                const tripsData = JSON.stringify(trips);
-                
-                if (storageAvailable) {
-                    localStorage.setItem('schengenTrips', tripsData);
-                    console.log(`✅ Saved ${trips.length} trips to localStorage`);
-                } else {
-                    // Fallback to sessionStorage (lost on browser close)
-                    sessionStorage.setItem('schengenTrips_session', tripsData);
-                    console.log(`⚠️ Saved ${trips.length} trips to sessionStorage (temporary)`);
-                }
-                
-                // Show save confirmation to user
-                showSaveStatus();
-                
-            } catch (error) {
-                console.error('Error saving trips:', error);
-                showSaveError();
-            }
+        async function saveTrips() {
+    try {
+        // Save to database if user is authenticated
+        if (window.currentUser && window.authToken) {
+            // Also save to localStorage as backup
+            localStorage.setItem('schengenTrips', JSON.stringify(trips));
+            console.log(`✅ Trips synced across devices for ${window.currentUser.firstName}`);
+            showSaveStatus();
+            return;
         }
+        
+        // Fallback to localStorage only
+        localStorage.setItem('schengenTrips', JSON.stringify(trips));
+        console.log(`⚠️ Saved ${trips.length} trips to localStorage only`);
+        showSaveStatus();
+        
+    } catch (error) {
+        console.error('Error saving trips:', error);
+        showSaveError();
+    }
+}
 
         function showSaveStatus() {
             const status = document.createElement('div');
@@ -1816,6 +1842,56 @@ async function apiCall(endpoint, options = {}) {
             }, 3000);
         }
 
+async function saveTripToDatabase(trip) {
+    try {
+        if (!window.currentUser || !window.authToken) {
+            console.warn('Cannot save to database - user not authenticated');
+            return false;
+        }
+        
+        const response = await apiCall('/trips', {
+            method: 'POST',
+            body: JSON.stringify({
+                userEmail: window.currentUser.email,
+                trip: trip
+            })
+        });
+        
+        if (response.success) {
+            console.log(`✅ Trip saved to database: ${trip.country}`);
+            return true;
+        } else {
+            console.error('Failed to save trip to database:', response.error);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error saving trip to database:', error);
+        return false;
+    }
+}
+
+async function migrateTripsToDatabase() {
+    try {
+        console.log(`🔄 Migrating ${trips.length} trips to database...`);
+        let migrated = 0;
+        
+        for (const trip of trips) {
+            const saved = await saveTripToDatabase(trip);
+            if (saved) migrated++;
+        }
+        
+        console.log(`✅ Migrated ${migrated}/${trips.length} trips to database`);
+        
+        if (migrated === trips.length) {
+            // Clear localStorage after successful migration
+            localStorage.removeItem('schengenTrips');
+            console.log('📦 Cleared localStorage after successful migration');
+        }
+    } catch (error) {
+        console.error('Migration error:', error);
+    }
+}
+        
         // Calculate days between dates
         function calculateDaysBetween(startDate, endDate) {
             const start = new Date(startDate);
@@ -2284,10 +2360,16 @@ async function apiCall(endpoint, options = {}) {
                         days
                     };
                     
-                    trips.push(trip);
-                    saveTrips();
-                    updateDisplay();
-                    incrementUsage();
+                   trips.push(trip);
+
+// Save to database first, then localStorage backup
+if (window.currentUser) {
+    await saveTripToDatabase(trip);
+}
+
+await saveTrips();
+updateDisplay();
+incrementUsage();
                     
                     // Reset form
                     tripForm.reset();
@@ -2313,6 +2395,7 @@ async function apiCall(endpoint, options = {}) {
 </body>
 
 </html>
+
 
 
 
