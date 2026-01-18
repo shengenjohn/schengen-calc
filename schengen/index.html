@@ -1220,25 +1220,15 @@
         }
 
         // Subscription and trial management
-        function getSubscriptionStatus() {
-            const trialEnd = localStorage.getItem('travelCompliance_trial_end');
-            const trialActive = localStorage.getItem('travelCompliance_trial_active') === 'true';
-            const hasSubscription = localStorage.getItem('travelCompliance_subscription') === 'active';
-            const now = new Date().getTime();
-            
-            if (trialActive && trialEnd && now < parseInt(trialEnd)) {
-                return { 
-                    status: 'trial', 
-                    daysLeft: Math.ceil((parseInt(trialEnd) - now) / (24 * 60 * 60 * 1000))
-                };
-            }
-            
-            if (hasSubscription) {
-                return { status: 'subscribed' };
-            }
-            
-            return { status: 'free' };
-        }
+       function getSubscriptionStatus() {
+    // Check if user is authenticated with unlimited access
+    if (window.currentUser && window.currentUser.subscription === 'unlimited') {
+        return { status: 'unlimited' };
+    }
+    
+    // For all other users, they're on free plan
+    return { status: 'free' };
+}
 
         function updateSubscriptionStatus() {
             const status = getSubscriptionStatus();
@@ -2488,4 +2478,5 @@
 </body>
 
 </html>
+
 
