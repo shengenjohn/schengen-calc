@@ -2318,7 +2318,7 @@ async function migrateTripsToDatabase() {
         }
 
         // Form submission
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // Test storage availability
             testStorage();
             
@@ -2380,7 +2380,7 @@ incrementUsage();
             }
             
             // Initialize the app
-            loadTrips();
+            await loadTrips();
             updateSubscriptionStatus();
             updateDisplay();
             checkUrlParams();
@@ -2395,6 +2395,7 @@ incrementUsage();
 </body>
 
 </html>
+
 
 
 
