@@ -1174,6 +1174,28 @@
     
     console.log(`✅ Welcome ${currentUser.firstName}! Subscription: ${currentUser.subscription}`);
 })();
+
+        // Trips API Configuration
+const TRIPS_API_URL = 'https://trips-api.YOUR-NAME.workers.dev'; // Replace with your actual URL
+
+// API helper functions
+async function apiCall(endpoint, options = {}) {
+    const token = localStorage.getItem('travel_auth_token');
+    const defaultOptions = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    };
+    
+    const response = await fetch(`${TRIPS_API_URL}${endpoint}`, {
+        ...defaultOptions,
+        ...options
+    });
+    
+    return await response.json();
+}
+        
         // Safe element access utilities
         function safeElement(id) {
             const element = document.getElementById(id);
@@ -2291,6 +2313,7 @@
 </body>
 
 </html>
+
 
 
 
