@@ -2411,11 +2411,12 @@ incrementUsage();
         }
 
         function checkUrlParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('dev') === 'true') {
-                enableDeveloperMode();
-            }
-        }
+    // Developer tools disabled in production
+    // const urlParams = new URLSearchParams(window.location.search);
+    // if (urlParams.get('dev') === 'true') {
+    //     enableDeveloperMode();
+    // }
+}
 
         // Developer panel functions (placeholders)
         window.toggleDevPanel = function() {
@@ -2459,6 +2460,7 @@ incrementUsage();
 </body>
 
 </html>
+
 
 
 
