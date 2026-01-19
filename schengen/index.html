@@ -1857,8 +1857,13 @@ async function saveTripToDatabase(trip) {
         const response = await apiCall('/trips', {
             method: 'POST',
             body: JSON.stringify({
-                userEmail: window.currentUser.email,
-                trip: trip
+                user_id: window.currentUser.email,
+                trip_name: trip.notes || `${trip.country} Trip`,
+                destination_country: trip.country,
+                departure_date: trip.entryDate,
+                return_date: trip.exitDate,
+                passport_expiry_date: null,
+                nationality: window.currentUser.nationality || null
             })
         });
         
@@ -2451,3 +2456,4 @@ incrementUsage();
 </body>
 
 </html>
+
