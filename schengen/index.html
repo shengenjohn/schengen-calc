@@ -1860,6 +1860,7 @@ async function saveTripToDatabase(trip) {
     userEmail: window.currentUser.email,
     trip: trip
 })
+});
         
         if (response.success) {
             console.log(`✅ Trip saved to database: ${trip.country}`);
@@ -2450,5 +2451,6 @@ incrementUsage();
 </body>
 
 </html>
+
 
 
