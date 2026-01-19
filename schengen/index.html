@@ -887,6 +887,14 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Hide developer tools in production */
+        .dev-panel,
+        .dev-toggle,
+        .emergency-access,
+        .dev-indicator {
+            display: none !important;
+}        
     </style>
 </head>
 <body>
@@ -2451,6 +2459,7 @@ incrementUsage();
 </body>
 
 </html>
+
 
 
 
