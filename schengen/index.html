@@ -2466,10 +2466,54 @@ incrementUsage();
         window.startDemoTrial = function() {
             console.log('Demo trial started');
         };
+
+        // Add to Home Screen functionality
+        let deferredPrompt;
+
+        // Listen for the beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('beforeinstallprompt event fired');
+            e.preventDefault();
+            deferredPrompt = e;
+            const installPrompt = document.getElementById('install-prompt');
+            if (installPrompt) {
+                installPrompt.style.display = 'block';
+            }
+        });
+
+        // Handle install button click
+        document.addEventListener('DOMContentLoaded', function() {
+            const installButton = document.getElementById('install-button');
+            if (installButton) {
+                installButton.addEventListener('click', () => {
+                    console.log('Install button clicked');
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        deferredPrompt.userChoice.then((result) => {
+                            console.log('User choice:', result);
+                            if (result.outcome === 'accepted') {
+                                document.getElementById('install-prompt').style.display = 'none';
+                            }
+                            deferredPrompt = null;
+                        });
+                    }
+                });
+            }
+        });
+
+        // Handle successful installation
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('App was successfully installed');
+            const installPrompt = document.getElementById('install-prompt');
+            if (installPrompt) {
+                installPrompt.style.display = 'none';
+            }
+        });   
     </script>
 </body>
 
 </html>
+
 
 
 
