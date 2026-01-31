@@ -1380,6 +1380,41 @@ async function apiCall(endpoint, options = {}) {
             window.location.href = '/';
         }
 
+        // SQUARE CHECKOUT FUNCTIONS - Replace URLs with your actual Square checkout URLs
+function upgradeToProMonthly() {
+    // SANDBOX URL - Replace with your actual Square sandbox checkout URL for Pro Monthly
+    const squareCheckoutUrl = 'YOUR_SQUARE_SANDBOX_PRO_MONTHLY_CHECKOUT_URL_HERE';
+    
+    // For testing purposes, show an alert first
+    if (squareCheckoutUrl.includes('YOUR_SQUARE')) {
+        alert('🔧 Testing Mode\n\nThis would redirect to Square checkout for:\n✅ Pro Plan - £2.99/month\n\nReplace the URL in upgradeToProMonthly() function with your actual Square checkout URL.');
+        return;
+    }
+    
+    // Track upgrade attempt
+    trackEvent('upgrade_attempt', { plan: 'pro_monthly', price: '2.99' });
+    
+    // Redirect to Square checkout
+    window.location.href = squareCheckoutUrl;
+}
+
+function upgradeToBusinessMonthly() {
+    // SANDBOX URL - Replace with your actual Square sandbox checkout URL for Business Monthly  
+    const squareCheckoutUrl = 'YOUR_SQUARE_SANDBOX_BUSINESS_MONTHLY_CHECKOUT_URL_HERE';
+    
+    // For testing purposes, show an alert first
+    if (squareCheckoutUrl.includes('YOUR_SQUARE')) {
+        alert('🔧 Testing Mode\n\nThis would redirect to Square checkout for:\n✅ Business Plan - £10.00/month\n\nReplace the URL in upgradeToBusinessMonthly() function with your actual Square checkout URL.');
+        return;
+    }
+    
+    // Track upgrade attempt
+    trackEvent('upgrade_attempt', { plan: 'business_monthly', price: '10.00' });
+    
+    // Redirect to Square checkout
+    window.location.href = squareCheckoutUrl;
+}
+
         // Analytics tracking with error handling
         function trackEvent(eventName, properties) {
             try {
@@ -2530,6 +2565,7 @@ incrementUsage();
 </body>
 
 </html>
+
 
 
 
