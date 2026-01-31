@@ -1311,48 +1311,65 @@ async function apiCall(endpoint, options = {}) {
 }
 
         function showPaywall() {
-            const paywall = document.createElement('div');
-            paywall.className = 'paywall-overlay';
-            paywall.innerHTML = `
-                <div class="paywall-content">
-                    <h2>🔒 Travel Compliance Pro</h2>
-                    <p>You've used your 3 free calculations. Our Pro subscription is launching soon with unlimited access and advanced features!</p>
-                    
-                    <div class="paywall-pricing">
-                        <strong>✨ Coming Soon</strong>
-                        <div class="paywall-price">Pro Features</div>
-                        <div style="background: rgba(37, 99, 235, 0.1); color: #1d4ed8; padding: 8px; border-radius: 5px; margin: 10px 0; font-weight: 600;">
-                            🚀 Launching in January 2025
-                        </div>
-                        <p style="font-size: 0.9rem; margin: 10px 0;">
-                            Unlimited calculations • Visual calendar • Travel history • PDF reports • Business features • API access
-                        </p>
-                    </div>
-                    
-                    <div class="paywall-buttons">
-                        <a href="/waitlist.html" class="paywall-btn paywall-btn-primary">
-                            Join Waitlist
-                        </a>
-                        <button onclick="closePaywall()" class="paywall-btn paywall-btn-secondary">
-                            ← Back to Home
+    const paywall = document.createElement('div');
+    paywall.className = 'paywall-overlay';
+    paywall.innerHTML = `
+        <div class="paywall-content">
+            <h2>🔒 Travel Compliance Pro</h2>
+            <p>You've used your 3 free calculations. Upgrade now for unlimited access and advanced features!</p>
+            
+            <div class="paywall-pricing">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <!-- Pro Plan -->
+                    <div style="border: 2px solid #667eea; border-radius: 12px; padding: 20px; text-align: center;">
+                        <h3 style="color: #667eea; margin: 0 0 10px 0;">Pro Plan</h3>
+                        <div class="paywall-price" style="color: #667eea;">£2.99<span style="font-size: 1rem;">/month</span></div>
+                        <ul style="text-align: left; margin: 15px 0; padding-left: 20px; font-size: 0.9rem;">
+                            <li>Unlimited calculations</li>
+                            <li>Visual timeline</li>
+                            <li>Travel history</li>
+                            <li>PDF reports</li>
+                        </ul>
+                        <button onclick="upgradeToProMonthly()" class="paywall-btn paywall-btn-primary" style="width: 100%; margin-top: 10px;">
+                            Upgrade to Pro
                         </button>
                     </div>
                     
-                    <div class="square-badge">
-                        🔔 Get notified when we launch
+                    <!-- Business Plan -->
+                    <div style="border: 2px solid #10b981; border-radius: 12px; padding: 20px; text-align: center; background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);">
+                        <h3 style="color: #10b981; margin: 0 0 10px 0;">Business Plan</h3>
+                        <div class="paywall-price" style="color: #10b981;">£10.00<span style="font-size: 1rem;">/month</span></div>
+                        <ul style="text-align: left; margin: 15px 0; padding-left: 20px; font-size: 0.9rem;">
+                            <li><strong>Everything in Pro</strong></li>
+                            <li>Team dashboards</li>
+                            <li>Multi-user management</li>
+                            <li>Advanced reporting</li>
+                            <li>API access</li>
+                        </ul>
+                        <button onclick="upgradeToBusinessMonthly()" class="paywall-btn paywall-btn-primary" style="width: 100%; margin-top: 10px; background: #10b981;">
+                            Upgrade to Business
+                        </button>
                     </div>
-                    
-                    <p style="font-size: 0.8rem; margin-top: 20px; color: #999;">
-                        Join 1,000+ travelers already on our waitlist
-                    </p>
                 </div>
-            `;
+            </div>
             
-            document.body.appendChild(paywall);
+            <div class="paywall-buttons">
+                <button onclick="closePaywall()" class="paywall-btn paywall-btn-secondary">
+                    ← Continue with Free Version
+                </button>
+            </div>
             
-            // Track paywall show event
-            trackEvent('paywall_shown', { trigger: 'usage_limit', status: 'waitlist' });
-        }
+            <div class="square-badge">
+                🔒 Secure payment powered by Square
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(paywall);
+    
+    // Track paywall show event
+    trackEvent('paywall_shown', { trigger: 'usage_limit', status: 'active_checkout' });
+}
 
         function closePaywall() {
             const paywall = document.querySelector('.paywall-overlay');
@@ -2513,6 +2530,7 @@ incrementUsage();
 </body>
 
 </html>
+
 
 
 
