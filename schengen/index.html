@@ -1990,13 +1990,13 @@ async function migrateTripsToDatabase() {
                 
                 if (exitDate >= windowStart) {
                     const tripStart = entryDate > windowStart ? entryDate : windowStart;
-                    const tripEnd = exitDate < today ? exitDate : today;
-                    
+                    const tripEnd = exitDate; // Don't limit to 'today' - count future trips too!
+    
                     if (tripStart <= tripEnd) {
                         const daysInWindow = calculateDaysBetween(
-                            tripStart.toISOString().split('T')[0],
-                            tripEnd.toISOString().split('T')[0]
-                        );
+                        tripStart.toISOString().split('T')[0],
+                        tripEnd.toISOString().split('T')[0]
+        );
                         totalDaysUsed += daysInWindow;
                         
                         if (!earliestTripDate || entryDate < earliestTripDate) {
@@ -2565,6 +2565,7 @@ incrementUsage();
 </body>
 
 </html>
+
 
 
 
