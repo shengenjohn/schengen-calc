@@ -91,6 +91,23 @@
             gap: 15px;
         }
         
+        .password-requirements {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            text-align: left;
+        }
+
+        .requirement {
+            margin: 4px 0;
+            transition: color 0.3s;
+        }
+
+        .requirement.met {
+            color: #22c55e;
+            font-weight: 500;
+        }
+        
         .submit-btn {
             width: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -216,8 +233,14 @@
                 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" id="password" class="form-input" required minlength="6">
-                    <small style="color: #666; font-size: 0.8rem;">8+ chars: A-Z, a-z, 0-9, !@#</small>
+                    <input type="password" id="password" class="form-input" required minlength="8">
+                    <div class="password-requirements">
+                        <div class="requirement" id="req-length">• At least 8 characters</div>
+                        <div class="requirement" id="req-uppercase">• One uppercase letter</div>
+                        <div class="requirement" id="req-lowercase">• One lowercase letter</div>
+                        <div class="requirement" id="req-number">• One number</div>
+                        <div class="requirement" id="req-special">• One special character (!@#$%^&*)</div>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -237,6 +260,20 @@
     <script>
         // Replace with your actual auth API URL
         const AUTH_API_URL = 'https://auth-api.likelylad9.workers.dev';
+
+        // Real-time password validation
+        const passwordInput = document.getElementById('password');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            
+            // Check requirements and update visual indicators
+            document.getElementById('req-length').classList.toggle('met', password.length >= 8);
+            document.getElementById('req-uppercase').classList.toggle('met', /[A-Z]/.test(password));
+            document.getElementById('req-lowercase').classList.toggle('met', /[a-z]/.test(password));
+            document.getElementById('req-number').classList.toggle('met', /\d/.test(password));
+            document.getElementById('req-special').classList.toggle('met', /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password));
+        });
 
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -260,6 +297,16 @@
             // Validate passwords match
             if (formData.password !== formData.confirmPassword) {
                 showError('Passwords do not match');
+                return;
+            }
+            
+            // Validate password strength
+            if (formData.password.length < 8 || 
+                !/[A-Z]/.test(formData.password) || 
+                !/[a-z]/.test(formData.password) || 
+                !/\d/.test(formData.password) || 
+                !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password)) {
+                showError('Password must be at least 8 characters and include uppercase, lowercase, number, and special character');
                 return;
             }
             
