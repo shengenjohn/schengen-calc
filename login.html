@@ -84,6 +84,12 @@
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
+
+        .form-input:disabled {
+            background: #f3f4f6;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
         
         .submit-btn {
             width: 100%;
@@ -128,6 +134,112 @@
             border-radius: 8px;
             margin-bottom: 20px;
             font-size: 0.9rem;
+        }
+
+        .saved-accounts {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .saved-accounts-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .saved-account-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .saved-account-item:hover {
+            border-color: #667eea;
+            background: #f5f3ff;
+        }
+
+        .saved-account-item.active {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .saved-account-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .saved-account-avatar.paid {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .saved-account-info {
+            flex: 1;
+        }
+
+        .saved-account-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .saved-account-email {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .saved-account-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .saved-account-badge.active-badge {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .saved-account-badge.paid-badge {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+            margin: 0 10px;
         }
         
         .auth-link {
@@ -174,16 +286,27 @@
             text-decoration: none;
             font-size: 0.9rem;
         }
-        
-        .forgot-password a:hover {
-            text-decoration: underline;
+
+        .mode-banner {
+            background: linear-gradient(135deg, #667eea20, #764ba220);
+            border: 1px solid #667eea40;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            color: #4c1d95;
+            text-align: center;
+        }
+
+        .mode-banner strong {
+            display: block;
+            margin-bottom: 4px;
         }
         
         @media (max-width: 768px) {
             .auth-card {
                 padding: 30px 20px;
             }
-            
             .container {
                 padding-top: 40px;
             }
@@ -196,30 +319,40 @@
         
         <div class="auth-card">
             <div class="logo">🇪🇺</div>
-            <h1 class="title">Welcome Back</h1>
-            <p class="subtitle">Sign in to access your travel compliance data</p>
+            <h1 class="title" id="pageTitle">Welcome Back</h1>
+            <p class="subtitle" id="pageSubtitle">Sign in to access your travel compliance data</p>
+
+            <div id="modeBanner" class="mode-banner" style="display:none;"></div>
             
+            <div id="savedAccountsPanel" style="display:none;">
+                <div class="saved-accounts">
+                    <div class="saved-accounts-title">Currently signed in</div>
+                    <div id="savedAccountsList"></div>
+                </div>
+                <div class="divider">or sign in with another account</div>
+            </div>
+
             <div id="message-container"></div>
             
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
                     <label class="form-label" for="email">Email Address</label>
-                    <input type="email" id="email" class="form-input" required>
+                    <input type="email" id="email" class="form-input" required autocomplete="email">
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" id="password" class="form-input" required>
+                    <input type="password" id="password" class="form-input" required autocomplete="current-password">
                 </div>
                 
-                <button type="submit" class="submit-btn">Sign In</button>
+                <button type="submit" class="submit-btn" id="submitBtn">Sign In</button>
             </form>
             
             <div class="forgot-password">
-            <a href="/forgot-password.html" style="color: #667eea; text-decoration: none; font-size: 14px;">
-                Forgot your password?
-            </a>
-    </div>
+                <a href="/forgot-password.html" style="color: #667eea; text-decoration: none; font-size: 14px;">
+                    Forgot your password?
+                </a>
+            </div>
             
             <div class="auth-link">
                 Don't have an account? <a href="/register.html">Create one here</a>
@@ -228,103 +361,187 @@
     </div>
     
     <script>
-        // Replace with your actual auth API URL
         const AUTH_API_URL = 'https://auth-api.likelylad9.workers.dev';
 
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = e.target.querySelector('.submit-btn');
-            const originalText = submitBtn.textContent;
-            const messageContainer = document.getElementById('message-container');
-            
-            // Clear previous messages
-            messageContainer.innerHTML = '';
-            
-            // Get form data
-            const formData = {
-                email: document.getElementById('email').value.trim(),
-                password: document.getElementById('password').value
-            };
-            
-            // Validate inputs
-            if (!formData.email || !formData.password) {
-                showError('Please fill in all fields');
-                return;
+        function getAccounts() {
+            try { return JSON.parse(localStorage.getItem('travel_accounts') || '[]'); }
+            catch (e) { return []; }
+        }
+
+        function saveAccount(accountData) {
+            const accounts = getAccounts();
+            const existingIndex = accounts.findIndex(a => a.email === accountData.email);
+            if (existingIndex >= 0) {
+                accounts[existingIndex] = accountData;
+            } else {
+                accounts.push(accountData);
             }
-            
-            // Show loading state
+            localStorage.setItem('travel_accounts', JSON.stringify(accounts));
+        }
+
+        function setActiveAccount(email) {
+            localStorage.setItem('travel_active_account', email);
+        }
+
+        function getActiveEmail() {
+            return localStorage.getItem('travel_active_account');
+        }
+
+        function isPaidSubscription(sub) {
+            return ['unlimited', 'lifetime_free', 'pro', 'business', 'active'].includes(sub);
+        }
+
+        function getInitials(firstName, lastName) {
+            const f = (firstName || '').charAt(0).toUpperCase();
+            const l = (lastName || '').charAt(0).toUpperCase();
+            return f + l || '??';
+        }
+
+        const urlParams      = new URLSearchParams(window.location.search);
+        const loginMode      = urlParams.get('mode') || 'normal';
+        const prefilledEmail = urlParams.get('email') || '';
+        const redirectTo     = urlParams.get('redirect') || 'schengen';
+
+        window.addEventListener('load', function () {
+            const accounts    = getAccounts();
+            const activeEmail = getActiveEmail();
+
+            if (prefilledEmail) {
+                document.getElementById('email').value    = prefilledEmail;
+                document.getElementById('email').disabled = true;
+                document.getElementById('password').focus();
+            }
+
+            if (loginMode === 'switch') {
+                const switchingTo = accounts.find(a => a.email === prefilledEmail);
+                const displayName = switchingTo ? switchingTo.firstName : prefilledEmail;
+                document.getElementById('pageTitle').textContent    = 'Switch Account';
+                document.getElementById('pageSubtitle').textContent = `Enter your password to switch to ${displayName}'s account`;
+                document.getElementById('submitBtn').textContent     = 'Switch Account';
+                const banner = document.getElementById('modeBanner');
+                banner.innerHTML    = `<strong>🔄 Account Switch</strong>Signing in as <strong>${prefilledEmail}</strong>`;
+                banner.style.display = 'block';
+
+            } else if (loginMode === 'add-account') {
+                document.getElementById('pageTitle').textContent    = 'Add Account';
+                document.getElementById('pageSubtitle').textContent = 'Sign in with another account to switch between them';
+                document.getElementById('submitBtn').textContent     = 'Add Account';
+
+                if (accounts.length > 0) {
+                    const banner = document.getElementById('modeBanner');
+                    banner.innerHTML    = `<strong>➕ Add Another Account</strong>Each account requires its own subscription after 3 free trips.`;
+                    banner.style.display = 'block';
+                    renderSavedAccounts(accounts, activeEmail);
+                    document.getElementById('savedAccountsPanel').style.display = 'block';
+                }
+
+            } else {
+                if (accounts.length > 0 && activeEmail) {
+                    const activeAccount = accounts.find(a => a.email === activeEmail);
+                    if (activeAccount) {
+                        window.location.href = '/' + redirectTo;
+                        return;
+                    }
+                }
+            }
+
+            const message = urlParams.get('message');
+            if (message === 'password-reset-success') {
+                showSuccess('✅ Password updated successfully. Please sign in with your new password.');
+            }
+        });
+
+        function renderSavedAccounts(accounts, activeEmail) {
+            const list = document.getElementById('savedAccountsList');
+            list.innerHTML = accounts.map(acc => {
+                const isActive  = acc.email === activeEmail;
+                const paid      = isPaidSubscription(acc.subscription);
+                const initials  = getInitials(acc.firstName, acc.lastName);
+                const badgeText = isActive ? 'Active' : (paid ? 'Pro/Business' : 'Free');
+                const badgeClass = isActive ? 'active-badge' : (paid ? 'paid-badge' : '');
+                return `
+                    <div class="saved-account-item ${isActive ? 'active' : ''}" onclick="switchToAccount('${acc.email}')">
+                        <div class="saved-account-avatar ${paid ? 'paid' : ''}">${initials}</div>
+                        <div class="saved-account-info">
+                            <div class="saved-account-name">${acc.firstName} ${acc.lastName}</div>
+                            <div class="saved-account-email">${acc.email}</div>
+                        </div>
+                        <span class="saved-account-badge ${badgeClass}">${badgeText}</span>
+                    </div>`;
+            }).join('');
+        }
+
+        function switchToAccount(email) {
+            window.location.href = `/login.html?mode=switch&email=${encodeURIComponent(email)}`;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const submitBtn    = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            document.getElementById('message-container').innerHTML = '';
+
+            const emailValue    = prefilledEmail || document.getElementById('email').value.trim();
+            const passwordValue = document.getElementById('password').value;
+
+            if (!emailValue || !passwordValue) { showError('Please fill in all fields'); return; }
+
             submitBtn.textContent = 'Signing In...';
-            submitBtn.disabled = true;
-            
+            submitBtn.disabled    = true;
+
             try {
                 const response = await fetch(`${AUTH_API_URL}/login`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailValue, password: passwordValue })
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
-                    // Save session token and user data
+                    const accountData = {
+                        email:        result.user.email,
+                        firstName:    result.user.firstName,
+                        lastName:     result.user.lastName || '',
+                        subscription: result.user.subscription || 'free',
+                        token:        result.token
+                    };
+
+                    saveAccount(accountData);
+                    setActiveAccount(accountData.email);
+
+                    // Keep legacy keys in sync
                     localStorage.setItem('travel_auth_token', result.token);
                     localStorage.setItem('travel_user', JSON.stringify(result.user));
-                    
-                    // Show success message
-                    showSuccess(`Welcome back, ${result.user.firstName}! Redirecting...`);
-                    
-                    // Track successful login
-                    console.log('User logged in successfully:', result.user);
-                    
-                    // Redirect to calculator after short delay
-                    setTimeout(() => {
-                        window.location.href = '/schengen';
-                    }, 1500);
-                    
+
+                    const actionWord = loginMode === 'add-account' ? 'Account added' : loginMode === 'switch' ? 'Switched' : 'Welcome back';
+                    showSuccess(`${actionWord}, ${result.user.firstName}! Redirecting...`);
+
+                    setTimeout(() => { window.location.href = '/' + redirectTo; }, 1200);
+
                 } else {
-                    showError(result.error || 'Login failed');
+                    showError(result.error || 'Login failed. Please check your email and password.');
                 }
-                
+
             } catch (error) {
                 console.error('Login error:', error);
                 showError('Connection error. Please try again.');
             } finally {
-                // Reset button
                 submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
+                submitBtn.disabled    = false;
             }
         });
-        
-        // Check if user is already logged in
-        window.addEventListener('load', function() {
-            const token = localStorage.getItem('travel_auth_token');
-            const user = localStorage.getItem('travel_user');
-            
-            if (token && user) {
-                // User is already logged in, redirect to calculator
-                console.log('User already logged in, redirecting...');
-                window.location.href = '/schengen';
-            }
-        });
-        
+
         function showError(message) {
-            const messageContainer = document.getElementById('message-container');
-            messageContainer.innerHTML = `<div class="error-message">${message}</div>`;
+            document.getElementById('message-container').innerHTML =
+                `<div class="error-message">❌ ${message}</div>`;
         }
-        
+
         function showSuccess(message) {
-            const messageContainer = document.getElementById('message-container');
-            messageContainer.innerHTML = `<div class="success-message">${message}</div>`;
+            document.getElementById('message-container').innerHTML =
+                `<div class="success-message">✅ ${message}</div>`;
         }
-        
-        // Track page view
-        console.log('Login page viewed:', {
-            timestamp: new Date().toISOString(),
-            referrer: document.referrer
-        });
     </script>
 </body>
 </html>
