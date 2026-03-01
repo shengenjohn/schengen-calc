@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Travel Compliance</title>
+    <script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 40px auto;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 24px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover { background: rgba(255,255,255,0.3); }
+
+        .checkout-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .plan-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .plan-header .plan-icon { font-size: 2.5rem; margin-bottom: 8px; }
+        .plan-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+        .plan-header .plan-price { font-size: 2.5rem; font-weight: 800; margin: 12px 0 4px; }
+        .plan-header .plan-period { opacity: 0.85; font-size: 0.95rem; }
+
+        .plan-features {
+            padding: 20px 32px;
+            background: #f9fafb;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .plan-features ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .plan-features li {
+            font-size: 0.85rem;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .plan-features li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .checkout-form { padding: 32px; }
+
+        .checkout-form h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 24px;
+        }
+
+        .form-group { margin-bottom: 18px; }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .form-group input:disabled {
+            background: #f9fafb;
+            color: #6b7280;
+        }
+
+        #card-container {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 16px;
+            min-height: 50px;
+            background: white;
+            transition: border-color 0.2s;
+        }
+
+        #card-container.focused { border-color: #667eea; }
+
+        .card-loading {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.35);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-btn.business {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .submit-btn.business:hover:not(:disabled) {
+            box-shadow: 0 8px 25px rgba(16,185,129,0.35);
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            text-align: center;
+            display: none;
+        }
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #9ca3af;
+            font-size: 0.8rem;
+            margin-top: 16px;
+        }
+
+        .sandbox-banner {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 10px 16px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .test-cards {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .test-cards h4 {
+            color: #0369a1;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .test-cards p { color: #374151; margin: 4px 0; }
+        .test-cards code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid #e0f2fe;
+        }
+
+        @media (max-width: 480px) {
+            .container { margin: 20px auto; }
+            .plan-features ul { grid-template-columns: 1fr; }
+            .checkout-form { padding: 24px 20px; }
+            .plan-header { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/subscribe.html" class="back-link">← Back to Plans</a>
+
+        <div class="checkout-card">
+            <div class="sandbox-banner">
+                🧪 Sandbox Mode — No real payments will be taken
+            </div>
+
+            <!-- Plan Header (populated by JS) -->
+            <div class="plan-header">
+                <div class="plan-icon" id="planIcon">⚡</div>
+                <h2 id="planName">Loading...</h2>
+                <div class="plan-price" id="planPrice">—</div>
+                <div class="plan-period" id="planPeriod">—</div>
+            </div>
+
+            <!-- Plan Features -->
+            <div class="plan-features">
+                <ul id="planFeatures"></ul>
+            </div>
+
+            <!-- Checkout Form -->
+            <div class="checkout-form">
+                <h3>Payment Details</h3>
+
+                <!-- Test card helper -->
+                <div class="test-cards">
+                    <h4>🧪 Test Card Numbers</h4>
+                    <p>Card number: <code>4111 1111 1111 1111</code></p>
+                    <p>Expiry: any future date &nbsp;·&nbsp; CVV: any 3 digits &nbsp;·&nbsp; Postcode: any</p>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+
+                <div class="form-group">
+                    <label for="emailInput">Email Address</label>
+                    <input type="email" id="emailInput" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nameInput">Full Name</label>
+                    <input type="text" id="nameInput" placeholder="John Smith" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Card Details</label>
+                    <div id="card-container">
+                        <div class="card-loading">Loading secure payment form...</div>
+                    </div>
+                </div>
+
+                <button class="submit-btn" id="submitBtn" disabled>
+                    Loading...
+                </button>
+
+                <div class="security-note">
+                    🔒 Secured by Square · Card details never touch our servers
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── Plan Configuration ───────────────────────────────────────────────
+        const SANDBOX_APP_ID = 'sandbox-sq0idb-flkrmeszaT6YO-03sNAwHg';
+        const SANDBOX_LOCATION_ID = 'LQKB1MEK1J4GP'; // your Square location ID
+
+        const PLANS = {
+            'pro-monthly': {
+                name: 'Pro Plan',
+                period: '£2.99 / month',
+                price: '£2.99',
+                billing: 'Billed monthly · cancel anytime',
+                icon: '⚡',
+                variationId: 'T42DCHIWMQWWVZVUUX7IXW2C', // sandbox
+                tier: 'pro',
+                frequency: 'monthly',
+                features: [
+                    'Unlimited trip calculations',
+                    'Visual timeline',
+                    'Travel history & export',
+                    'Email reminders',
+                    'Direct email support',
+                    'All devices synced',
+                    '1 user account',
+                    'Cancel anytime'
+                ]
+            },
+            'pro-yearly': {
+                name: 'Pro Plan',
+                period: '£24.00 / year',
+                price: '£24',
+                billing: 'Billed annually · save £11.88',
+                icon: '⚡',
+                variationId: 'C7645FEWYVUWVNVT3UJ77UJZ', // sandbox
+                tier: 'pro',
+                frequency: 'yearly',
+                features: [
+                    'Unlimited trip calculations',
+                    'Visual timeline',
+                    'Travel history & export',
+                    'Email reminders',
+                    'Direct email support',
+                    'All devices synced',
+                    '1 user account',
+                    'Best value — 2 months free'
+                ]
+            },
+            'business-monthly': {
+                name: 'Business Plan',
+                period: '£10.00 / month',
+                price: '£10',
+                billing: 'Billed monthly · cancel anytime',
+                icon: '💼',
+                variationId: '7IZJOYXDDEURK3RAAZOEINAQ', // sandbox
+                tier: 'business',
+                frequency: 'monthly',
+                features: [
+                    'Everything in Pro',
+                    'Up to 5 user accounts',
+                    'Team account switching',
+                    'Advanced reports',
+                    'Priority support',
+                    'Business API access',
+                    'Custom notifications',
+                    'Cancel anytime'
+                ]
+            },
+            'business-yearly': {
+                name: 'Business Plan',
+                period: '£100.00 / year',
+                price: '£100',
+                billing: 'Billed annually · save £20',
+                icon: '💼',
+                variationId: 'VLDDMZXN2ESJZHIWH7X26SPE', // sandbox
+                tier: 'business',
+                frequency: 'yearly',
+                features: [
+                    'Everything in Pro',
+                    'Up to 5 user accounts',
+                    'Team account switching',
+                    'Advanced reports',
+                    'Priority support',
+                    'Business API access',
+                    'Custom notifications',
+                    'Best value — 2 months free'
+                ]
+            }
+        };
+
+        // ─── Get plan from URL ────────────────────────────────────────────────
+        const urlParams = new URLSearchParams(window.location.search);
+        const planKey   = urlParams.get('plan') || 'pro-monthly';
+        const plan      = PLANS[planKey] || PLANS['pro-monthly'];
+
+        // ─── Populate plan UI ─────────────────────────────────────────────────
+        document.getElementById('planIcon').textContent   = plan.icon;
+        document.getElementById('planName').textContent   = plan.name;
+        document.getElementById('planPrice').textContent  = plan.price;
+        document.getElementById('planPeriod').textContent = plan.billing;
+
+        document.getElementById('planFeatures').innerHTML = plan.features
+            .map(f => `<li>${f}</li>`).join('');
+
+        const submitBtn = document.getElementById('submitBtn');
+        if (plan.tier === 'business') submitBtn.classList.add('business');
+
+        // Pre-fill email if user is logged in
+        const activeEmail = localStorage.getItem('travel_active_account') || '';
+        if (activeEmail) document.getElementById('emailInput').value = activeEmail;
+
+        // ─── Square Web Payments SDK ──────────────────────────────────────────
+        let squareCard;
+
+        async function initSquare() {
+            try {
+                if (!window.Square) {
+                    showError('Payment system failed to load. Please refresh the page.');
+                    return;
+                }
+
+                const payments = Square.payments(SANDBOX_APP_ID, SANDBOX_LOCATION_ID);
+                squareCard     = await payments.card();
+                await squareCard.attach('#card-container');
+
+                submitBtn.disabled    = false;
+                submitBtn.textContent = `Subscribe to ${plan.name} — ${plan.price}`;
+
+                console.log('✅ Square initialized in sandbox mode');
+
+            } catch (error) {
+                console.error('Square init error:', error);
+                showError('Payment system failed to load. Please refresh the page.');
+            }
+        }
+
+        // ─── Form Submission ──────────────────────────────────────────────────
+        submitBtn.addEventListener('click', async function () {
+            const email = document.getElementById('emailInput').value.trim();
+            const name  = document.getElementById('nameInput').value.trim();
+
+            if (!email || !name) {
+                showError('Please fill in your email and name.');
+                return;
+            }
+
+            if (!squareCard) {
+                showError('Payment form not ready. Please refresh.');
+                return;
+            }
+
+            hideError();
+            submitBtn.disabled   = true;
+            submitBtn.innerHTML  = '<span class="spinner"></span>Processing...';
+
+            try {
+                // Tokenise the card
+                const result = await squareCard.tokenize();
+
+                if (result.status !== 'OK') {
+                    throw new Error(result.errors?.[0]?.message || 'Card details invalid. Please check and try again.');
+                }
+
+                const cardToken = result.token;
+
+                // Send to our Worker
+                const response = await fetch('https://auth-api.likelylad9.workers.dev/create-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cardToken,
+                        email,
+                        name,
+                        planVariationId: plan.variationId,
+                        tier:            plan.tier,
+                        frequency:       plan.frequency
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update localStorage subscription so the calculator knows immediately
+                    const accounts = JSON.parse(localStorage.getItem('travel_accounts') || '[]');
+                    const updated  = accounts.map(a => {
+                        if (a.email === email) return { ...a, subscription: plan.tier };
+                        return a;
+                    });
+                    localStorage.setItem('travel_accounts', JSON.stringify(updated));
+
+                    showSuccess(`
+                        🎉 <strong>Subscription activated!</strong><br><br>
+                        Welcome to ${plan.name}. You now have unlimited access.<br><br>
+                        Redirecting to the calculator...
+                    `);
+
+                    setTimeout(() => {
+                        window.location.href = '/schengen/';
+                    }, 3000);
+
+                } else {
+                    throw new Error(data.error || 'Subscription failed. Please try again.');
+                }
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showError(error.message);
+                submitBtn.disabled   = false;
+                submitBtn.textContent = `Subscribe to ${plan.name} — ${plan.price}`;
+            }
+        });
+
+        // ─── Helpers ──────────────────────────────────────────────────────────
+        function showError(msg) {
+            const el = document.getElementById('errorMessage');
+            el.innerHTML      = '❌ ' + msg;
+            el.style.display  = 'block';
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function showSuccess(msg) {
+            hideError();
+            const el = document.getElementById('successMessage');
+            el.innerHTML     = msg;
+            el.style.display = 'block';
+            submitBtn.style.display = 'none';
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // ─── Init ─────────────────────────────────────────────────────────────
+        window.addEventListener('load', initSquare);
+    </script>
+</body>
+</html>
