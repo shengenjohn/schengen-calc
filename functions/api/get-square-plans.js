@@ -8,7 +8,7 @@ export async function onRequestGet({ request, env, params }) {
       method: 'GET',
       headers: {
         'Square-Version': '2023-10-18',
-        'Authorization': `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
+        'Authorization': `Bearer EAAAl8FUajiJtygB6RRcG6RuxhrScVxpvrHKkqsnGfsVc-l_XQk1O5D7vkjvGiui`,
         'Content-Type': 'application/json'
       }
     });
