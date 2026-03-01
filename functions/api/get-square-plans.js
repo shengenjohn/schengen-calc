@@ -3,12 +3,11 @@
  */
 export async function onRequestGet({ request, env, params }) {
   try {
-    // Direct Square API call instead of SDK
-    const response = await fetch('https://connect.squareupsandbox.com/v2/catalog/list?types=SUBSCRIPTION_PLAN', {
+    const response = await fetch('https://connect.squareup.com/v2/catalog/list?types=SUBSCRIPTION_PLAN', {
       method: 'GET',
       headers: {
         'Square-Version': '2023-10-18',
-        'Authorization': `Bearer EAAAl8FUajiJtygB6RRcG6RuxhrScVxpvrHKkqsnGfsVc-l_XQk1O5D7vkjvGiui`,
+        'Authorization': `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
         'Content-Type': 'application/json'
       }
     });
