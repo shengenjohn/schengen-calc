@@ -211,17 +211,6 @@
             font-weight: 600;
         }
 
-        .postcode-hint {
-            background: #fffbeb;
-            border: 1px solid #fde68a;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 0.8rem;
-            color: #92400e;
-            margin-top: -10px;
-            margin-bottom: 18px;
-        }
-
         .spinner {
             display: inline-block;
             width: 18px;
@@ -297,12 +286,11 @@
             <div class="checkout-form">
                 <h3>Payment Details</h3>
 
-                <!-- Test card helper -->
                 <div class="test-cards">
                     <h4>🧪 Test Card Numbers</h4>
                     <p>Card number: <code>4111 1111 1111 1111</code></p>
                     <p>Expiry: any future date &nbsp;·&nbsp; CVV: any 3 digits</p>
-                    <p>Postcode: enter without spaces e.g. <code>CB89DZ</code> or <code>90210</code></p>
+                    <p>Postcode: enter with or without spaces e.g. <code>CB8 9DZ</code></p>
                 </div>
 
                 <div class="error-message" id="errorMessage"></div>
@@ -319,14 +307,15 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="postcodeInput">Billing Postcode / ZIP</label>
+                    <input type="text" id="postcodeInput" placeholder="e.g. CB8 9DZ or 90210" style="text-transform:uppercase;" required>
+                </div>
+
+                <div class="form-group">
                     <label>Card Details</label>
                     <div id="card-container">
                         <div class="card-loading">Loading secure payment form...</div>
                     </div>
-                </div>
-
-                <div class="postcode-hint">
-                    🇬🇧 UK users: enter your postcode without spaces e.g. <strong>CB89DZ</strong>
                 </div>
 
                 <button class="submit-btn" id="submitBtn" disabled>
@@ -456,7 +445,13 @@
                 }
 
                 const payments = Square.payments(SANDBOX_APP_ID, SANDBOX_LOCATION_ID);
-                squareCard     = await payments.card();
+
+                // postalCode: false removes Square's built-in ZIP field
+                // so we can use our own postcode input that accepts letters
+                squareCard = await payments.card({
+                    postalCode: false
+                });
+
                 await squareCard.attach('#card-container');
 
                 submitBtn.disabled    = false;
@@ -472,11 +467,12 @@
 
         // ─── Form Submission ──────────────────────────────────────────────────
         submitBtn.addEventListener('click', async function () {
-            const email = document.getElementById('emailInput').value.trim();
-            const name  = document.getElementById('nameInput').value.trim();
+            const email    = document.getElementById('emailInput').value.trim();
+            const name     = document.getElementById('nameInput').value.trim();
+            const postcode = document.getElementById('postcodeInput').value.trim();
 
-            if (!email || !name) {
-                showError('Please fill in your email and name.');
+            if (!email || !name || !postcode) {
+                showError('Please fill in all fields.');
                 return;
             }
 
@@ -490,8 +486,15 @@
             submitBtn.innerHTML = '<span class="spinner"></span>Processing...';
 
             try {
-                // Tokenise the card — Square handles postcode internally
-                const result = await squareCard.tokenize();
+                // Strip spaces from postcode so CB8 9DZ becomes CB89DZ
+                const postcodeClean = postcode.replace(/\s/g, '');
+
+                // Tokenise card — pass our postcode as billingContact
+                const result = await squareCard.tokenize({
+                    billingContact: {
+                        postalCode: postcodeClean
+                    }
+                });
 
                 if (result.status !== 'OK') {
                     throw new Error(
@@ -509,6 +512,7 @@
                         cardToken,
                         email,
                         name,
+                        postcode: postcodeClean,
                         planVariationId: plan.variationId,
                         tier:            plan.tier,
                         frequency:       plan.frequency
