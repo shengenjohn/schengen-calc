@@ -448,7 +448,9 @@
                 }
 
                 const payments = Square.payments(SANDBOX_APP_ID, SANDBOX_LOCATION_ID);
-                squareCard     = await payments.card();
+                squareCard = await payments.card({
+                    postalCode: false
+                });
                 await squareCard.attach('#card-container');
 
                 submitBtn.disabled    = false;
