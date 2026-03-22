@@ -492,7 +492,11 @@
 
             try {
                 // Tokenise the card
-                const result = await squareCard.tokenize();
+                const result = await squareCard.tokenize({
+                    billingContact: {
+                        postalCode: postcode
+                    }
+                });
 
                 if (result.status !== 'OK') {
                     throw new Error(
