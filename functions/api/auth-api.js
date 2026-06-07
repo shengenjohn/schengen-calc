@@ -156,7 +156,7 @@ export async function handleUserLogin(request, env) {
     
     // Find user by email
     const user = await env.DB.prepare(
-      `SELECT id, email, first_name, last_name, password_hash, subscription_active 
+      `SELECT id, email, first_name, last_name, password_hash, subscription_active, trips_added_count 
        FROM users WHERE email = ?`
     ).bind(loginData.email.toLowerCase()).first();
     
@@ -219,6 +219,7 @@ export async function handleUserLogin(request, env) {
         firstName: user.first_name,
         lastName: user.last_name,
         subscriptionActive: user.subscription_active,
+        tripsAddedCount: user.trips_added_count || 0,
         subscription: subscription ? {
           planType: subscription.plan_type,
           frequency: subscription.frequency,
@@ -283,7 +284,7 @@ export async function verifyUserToken(request, env) {
     
     // Get updated user information
     const user = await env.DB.prepare(
-      `SELECT id, email, first_name, last_name, subscription_active 
+      `SELECT id, email, first_name, last_name, subscription_active, trips_added_count 
        FROM users WHERE id = ?`
     ).bind(decoded.userId).first();
     
@@ -304,7 +305,8 @@ export async function verifyUserToken(request, env) {
         email: user.email,
         firstName: user.first_name,
         lastName: user.last_name,
-        subscriptionActive: user.subscription_active
+        subscriptionActive: user.subscription_active,
+        tripsAddedCount: user.trips_added_count || 0
       }
     }), {
       status: 200,
