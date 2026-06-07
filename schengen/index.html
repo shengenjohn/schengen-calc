@@ -418,42 +418,7 @@
 
         .cleanup-btn:hover { background: #d97706; }
 
-        .dev-panel {
-            position: fixed; bottom: 80px; right: 20px;
-            background: rgba(0,0,0,0.95); color: white;
-            padding: 20px; border-radius: 15px; font-size: 0.9rem;
-            z-index: 1001; display: none;
-            min-width: 280px; max-width: 350px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 2px solid #ff6b6b;
-        }
 
-        .dev-toggle {
-            position: fixed; bottom: 20px; right: 20px;
-            background: #ff6b6b; color: white; border: none;
-            width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem;
-            cursor: pointer; z-index: 1002;
-            display: flex !important; align-items: center; justify-content: center;
-            box-shadow: 0 4px 12px rgba(255,107,107,0.4);
-            transition: all 0.3s ease;
-        }
-
-        .dev-toggle:hover { transform: scale(1.1); }
-
-        .dev-input {
-            width: 100%; padding: 10px; margin: 8px 0;
-            border: 1px solid #555; border-radius: 8px;
-            background: #333; color: white; font-size: 14px;
-        }
-
-        .dev-btn {
-            background: #667eea; color: white; border: none;
-            padding: 10px 15px; border-radius: 8px;
-            cursor: pointer; margin: 5px 5px 5px 0;
-            font-size: 0.85rem; transition: all 0.2s;
-        }
-
-        .dev-btn:hover { background: #556bd8; transform: translateY(-1px); }
 
         body.simple-mode .card          { padding: 30px; font-size: 18px; }
         body.simple-mode .status-number { font-size: 72px; }
@@ -572,12 +537,9 @@
             .status-dashboard { grid-template-columns: 1fr; }
             .status-number { font-size: 36px; }
             .form-row { grid-template-columns: 1fr; }
-            .dev-panel { bottom: 80px; right: 10px; left: 10px; max-width: none; }
             .account-dropdown { width: 260px; }
             .user-avatar-container { top: 16px; }
         }
-
-        .dev-panel, .dev-toggle, .emergency-access, .dev-indicator { display: none !important; }
     </style>
 </head>
 <body>
@@ -803,24 +765,7 @@
             </div>
         </div>
 
-        <div id="dev-toggle" class="dev-toggle" onclick="toggleDevPanel()">🔧</div>
-        <div id="dev-panel" class="dev-panel">
-            <div style="margin-bottom:15px;font-weight:bold;text-align:center;color:#ff6b6b;">🔧 Developer Controls</div>
-            <div id="dev-login">
-                <input type="password" id="dev-password" class="dev-input" placeholder="Developer password" />
-                <button onclick="authenticateDeveloper()" class="dev-btn" style="width:100%;">Login</button>
-            </div>
-            <div id="dev-controls" style="display:none;">
-                <div style="margin-bottom:15px;color:#4CAF50;text-align:center;font-weight:600;">✅ Authenticated</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                    <button onclick="enableDeveloperMode()"  class="dev-btn">Enable Dev</button>
-                    <button onclick="disableDeveloperMode()" class="dev-btn">Disable Dev</button>
-                </div>
-                <div style="margin-top:10px;font-size:0.75rem;color:#ccc;">
-                    <strong>Active user:</strong> <span id="dev-active-user">—</span>
-                </div>
-            </div>
-        </div>
+
     </div>
 
     <script>
@@ -992,7 +937,8 @@
         function checkUsageLimit() {
             const status = getSubscriptionStatus();
             if (status.status !== 'free') return true;
-            return trips.length < 3;
+            const serverCount = window.currentUser ? (window.currentUser.tripsAddedCount || 0) : 0;
+            return serverCount < 3;
         }
 
         function updateSubscriptionStatus() {
@@ -1015,7 +961,8 @@
                 const tierName = status.tier.charAt(0).toUpperCase() + status.tier.slice(1);
                 safeSetContent('subscription-text', `✅ ${u.firstName} — ${tierName} Plan · Unlimited Trips`);
             } else {
-                const remaining = Math.max(0, 3 - trips.length);
+                const serverCount = window.currentUser ? (window.currentUser.tripsAddedCount || 0) : 0;
+                const remaining = Math.max(0, 3 - serverCount);
                 if (remaining === 0) {
                     safeSetStyle('subscribe-nudge', 'display', 'block');
                 } else {
@@ -1527,7 +1474,12 @@
                     };
 
                     trips.push(trip);
-                    if (window.currentUser) await saveTripToDatabase(trip);
+                    if (window.currentUser) {
+                        const saved = await saveTripToDatabase(trip);
+                        if (saved && !window.currentUser.subscriptionActive) {
+                            window.currentUser.tripsAddedCount = (window.currentUser.tripsAddedCount || 0) + 1;
+                        }
+                    }
                     await saveTrips();
                     updateDisplay();
                     form.reset();
@@ -1538,27 +1490,7 @@
             updateDisplay();
         });
 
-        function isDeveloperMode() { return localStorage.getItem('dev_mode') === 'true'; }
 
-        window.toggleDevPanel = function () {
-            const p = document.getElementById('dev-panel');
-            if (p) p.style.display = p.style.display === 'block' ? 'none' : 'block';
-        };
-
-        window.authenticateDeveloper = function () {
-            const pw = document.getElementById('dev-password').value;
-            if (pw === 'dev123') {
-                document.getElementById('dev-login').style.display    = 'none';
-                document.getElementById('dev-controls').style.display = 'block';
-                const activeEl = document.getElementById('dev-active-user');
-                if (activeEl) activeEl.textContent = window.currentUser?.email || '—';
-            } else {
-                alert('Invalid password');
-            }
-        };
-
-        window.enableDeveloperMode  = function () { localStorage.setItem('dev_mode', 'true'); };
-        window.disableDeveloperMode = function () { localStorage.setItem('dev_mode', 'false'); };
 
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
