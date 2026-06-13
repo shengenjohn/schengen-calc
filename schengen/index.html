@@ -972,20 +972,19 @@
 
             const accounts = getAccounts().filter(a => a.email !== activeEmail);
             localStorage.setItem('travel_accounts', JSON.stringify(accounts));
+            sessionStorage.removeItem('bsc_switch_unlocked');
+            sessionStorage.removeItem('bsc_pin_attempts');
 
             if (accounts.length > 0) {
-                // Switch to the first remaining account
                 localStorage.setItem('travel_active_account', accounts[0].email);
                 localStorage.setItem('travel_auth_token', accounts[0].token);
                 localStorage.setItem('travel_user', JSON.stringify(accounts[0]));
                 window.location.reload();
             } else {
-                // No accounts left — go to login
                 localStorage.removeItem('travel_accounts');
                 localStorage.removeItem('travel_active_account');
                 localStorage.removeItem('travel_auth_token');
                 localStorage.removeItem('travel_user');
-                sessionStorage.removeItem('bsc_switch_unlocked');
                 window.location.href = '/login.html';
             }
         }
