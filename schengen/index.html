@@ -1308,7 +1308,13 @@
                     method: 'POST',
                     body: JSON.stringify({ userEmail: window.currentUser.email, trip })
                 });
-                if (response.success) { console.log(`✅ Trip saved to D1: ${trip.country}`); return true; }
+                if (response.success) {
+                    // Update local trip ID to match D1 row ID so deletes work correctly
+                    const idx = trips.findIndex(t => t.id === trip.id);
+                    if (idx !== -1) trips[idx].id = response.tripId.toString();
+                    console.log(`✅ Trip saved to D1: ${trip.country} (D1 ID: ${response.tripId})`);
+                    return true;
+                }
                 console.error('DB save failed:', response.error);
                 return false;
             } catch (error) {
@@ -1576,9 +1582,22 @@
             }).join('');
         }
 
+        async function deleteTripFromDatabase(tripId) {
+            if (!window.currentUser || !window.authToken) return;
+            try {
+                await apiCall(`/trips/${tripId}?user=${encodeURIComponent(window.currentUser.email)}`, {
+                    method: 'DELETE'
+                });
+                console.log(`✅ Trip deleted from D1: ${tripId}`);
+            } catch (e) {
+                console.error('D1 delete error:', e);
+            }
+        }
+
         window.deleteTrip = async function (tripId) {
             const trip = trips.find(t => t.id === tripId);
             if (trip && confirm('Delete this trip?')) {
+                await deleteTripFromDatabase(tripId);
                 trips = trips.filter(t => t.id !== tripId);
                 await saveTrips();
                 updateDisplay();
@@ -1588,6 +1607,7 @@
         window.deleteExpiredTrip = async function (tripId) {
             const trip = trips.find(t => t.id === tripId);
             if (trip && confirm(`Delete old trip (${new Date(trip.entryDate).toLocaleDateString()} – ${new Date(trip.exitDate).toLocaleDateString()})?\n\nThis trip no longer affects your 90/180 calculation.`)) {
+                await deleteTripFromDatabase(tripId);
                 trips = trips.filter(t => t.id !== tripId);
                 await saveTrips();
                 updateDisplay();
@@ -1596,6 +1616,9 @@
 
         window.clearAll = async function () {
             if (confirm('Clear all trips?')) {
+                for (const trip of trips) {
+                    await deleteTripFromDatabase(trip.id);
+                }
                 trips = [];
                 await saveTrips();
                 updateDisplay();
