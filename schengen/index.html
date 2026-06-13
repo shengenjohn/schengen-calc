@@ -540,6 +540,71 @@
             .account-dropdown { width: 260px; }
             .user-avatar-container { top: 16px; }
         }
+
+        /* ── PIN Switch Modal ── */
+        .pin-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 2000;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .pin-modal {
+            background: white; border-radius: 20px; padding: 32px;
+            max-width: 360px; width: 100%; text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .pin-title  { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+        .pin-subtitle { font-size: 0.9rem; color: #64748b; margin-bottom: 24px; }
+        .pin-label  { font-size: 0.85rem; color: #64748b; margin-bottom: 10px; }
+        .pin-boxes  { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+        .pin-box {
+            width: 56px; height: 64px; border: 2px solid #e2e8f0; border-radius: 12px;
+            font-size: 1.8rem; font-weight: 700; text-align: center; color: #1e293b;
+            transition: border-color 0.2s; outline: none;
+            -moz-appearance: textfield;
+        }
+        .pin-box::-webkit-outer-spin-button,
+        .pin-box::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .pin-box:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+        .pin-box.filled { border-color: #667eea; background: #f5f7ff; }
+        .pin-error { color: #dc2626; font-size: 0.85rem; min-height: 20px; margin-bottom: 16px; }
+        .pin-locked-msg {
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px;
+            padding: 14px; margin-bottom: 16px; color: #dc2626; font-size: 0.9rem;
+        }
+        .pin-btn {
+            width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; padding: 14px; border-radius: 10px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 10px;
+            transition: opacity 0.2s;
+        }
+        .pin-btn:hover { opacity: 0.9; }
+        .pin-btn.secondary { background: #f1f5f9; color: #64748b; }
+        .pin-links { margin-top: 12px; font-size: 0.85rem; }
+        .pin-link  { color: #667eea; cursor: pointer; text-decoration: underline; }
+
+        /* ── iOS Install Banner ── */
+        .ios-install-banner {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #1e293b; color: white; z-index: 1500;
+            padding: 14px 16px; display: none;
+            align-items: center; gap: 12px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+        }
+        .ios-banner-icon { font-size: 1.6rem; flex-shrink: 0; }
+        .ios-banner-text { flex: 1; font-size: 0.85rem; line-height: 1.5; }
+        .ios-banner-text strong { display: block; font-size: 0.95rem; margin-bottom: 2px; }
+        .ios-share-chip {
+            display: inline-flex; align-items: center; gap: 3px;
+            background: #667eea; color: white; padding: 1px 7px;
+            border-radius: 5px; font-size: 0.78rem; font-weight: 600;
+            vertical-align: middle; margin: 0 2px;
+        }
+        .ios-banner-close {
+            background: rgba(255,255,255,0.15); border: none; color: white;
+            width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+            font-size: 1rem; flex-shrink: 0; display: flex;
+            align-items: center; justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -909,7 +974,202 @@
 
         function switchAccount(email) {
             document.getElementById('accountDropdown').classList.remove('open');
+            const pin = getSwitchPin();
+
+            // No PIN set yet — prompt to create one
+            if (!pin) {
+                document.getElementById('setPinTargetEmail').value = email;
+                document.getElementById('setPinOverlay').style.display = 'flex';
+                document.getElementById('setPinError').textContent = '';
+                clearPinGroup('setPinBox');
+                clearPinGroup('confirmPinBox');
+                setupPinBoxes('setPinBox', 'confirmPinBox0', null);
+                setupPinBoxes('confirmPinBox', null, confirmSetPin);
+                setTimeout(() => document.getElementById('setPinBox0').focus(), 100);
+                return;
+            }
+
+            // Already unlocked this session — switch freely
+            if (isSwitchUnlocked()) { doSwitchAccount(email); return; }
+
+            // Locked after 3 failed attempts
+            if (getPinAttempts() >= 3) { showLockedModal(email); return; }
+
+            // Show PIN entry
+            document.getElementById('pinTargetEmail').value = email;
+            document.getElementById('pinOverlay').style.display = 'flex';
+            document.getElementById('pinError').textContent = '';
+            document.getElementById('pinLockedMsg').style.display = 'none';
+            document.getElementById('pinVerifyBtn').style.display = 'block';
+            for (let i = 0; i < 4; i++) {
+                const b = document.getElementById(`pinBox${i}`);
+                if (b) b.disabled = false;
+            }
+            clearPinGroup('pinBox');
+            setupPinBoxes('pinBox', null, verifyPin);
+            setTimeout(() => document.getElementById('pinBox0').focus(), 100);
+        }
+
+        // ── PIN helpers ──────────────────────────────────────────────────────
+
+        const BSC_PIN_KEY      = 'bsc_switch_pin';
+        const BSC_UNLOCKED_KEY = 'bsc_switch_unlocked';
+        const BSC_ATTEMPTS_KEY = 'bsc_pin_attempts';
+
+        function getSwitchPin()     { return localStorage.getItem(BSC_PIN_KEY); }
+        function isSwitchUnlocked() { return sessionStorage.getItem(BSC_UNLOCKED_KEY) === 'true'; }
+        function getPinAttempts()   { return parseInt(sessionStorage.getItem(BSC_ATTEMPTS_KEY) || '0'); }
+
+        function getPinValue(prefix) {
+            return [0,1,2,3].map(i => {
+                const el = document.getElementById(`${prefix}${i}`);
+                return el ? (el.value || '') : '';
+            }).join('');
+        }
+
+        function clearPinGroup(prefix) {
+            for (let i = 0; i < 4; i++) {
+                const b = document.getElementById(`${prefix}${i}`);
+                if (b) { b.value = ''; b.classList.remove('filled'); }
+            }
+        }
+
+        function setupPinBoxes(prefix, nextFirstId, onComplete) {
+            for (let i = 0; i < 4; i++) {
+                const box = document.getElementById(`${prefix}${i}`);
+                if (!box) continue;
+                box.oninput = function () {
+                    this.value = this.value.replace(/[^0-9]/g, '').slice(-1);
+                    if (this.value) {
+                        this.classList.add('filled');
+                        if (i < 3) {
+                            document.getElementById(`${prefix}${i+1}`).focus();
+                        } else if (nextFirstId) {
+                            document.getElementById(nextFirstId).focus();
+                        } else if (onComplete) {
+                            onComplete();
+                        }
+                    } else {
+                        this.classList.remove('filled');
+                    }
+                };
+                box.onkeydown = function (e) {
+                    if (e.key === 'Backspace' && !this.value && i > 0) {
+                        document.getElementById(`${prefix}${i-1}`).focus();
+                    }
+                };
+            }
+        }
+
+        function verifyPin() {
+            const entered  = getPinValue('pinBox');
+            if (entered.length < 4) return;
+            const stored   = getSwitchPin();
+            const attempts = getPinAttempts();
+
+            if (entered === stored) {
+                sessionStorage.setItem(BSC_UNLOCKED_KEY, 'true');
+                sessionStorage.removeItem(BSC_ATTEMPTS_KEY);
+                const email = document.getElementById('pinTargetEmail').value;
+                closePinModal();
+                doSwitchAccount(email);
+            } else {
+                const newAttempts = attempts + 1;
+                sessionStorage.setItem(BSC_ATTEMPTS_KEY, String(newAttempts));
+                clearPinGroup('pinBox');
+                if (newAttempts >= 3) {
+                    showLockedModal(document.getElementById('pinTargetEmail').value);
+                } else {
+                    document.getElementById('pinError').textContent =
+                        `Incorrect PIN — ${3 - newAttempts} attempt${3 - newAttempts === 1 ? '' : 's'} remaining.`;
+                    setTimeout(() => document.getElementById('pinBox0').focus(), 50);
+                }
+            }
+        }
+
+        function confirmSetPin() {
+            const pin1 = getPinValue('setPinBox');
+            const pin2 = getPinValue('confirmPinBox');
+
+            if (pin1.length < 4) {
+                document.getElementById('setPinError').textContent = 'Please complete your PIN.';
+                return;
+            }
+            if (pin1 !== pin2) {
+                document.getElementById('setPinError').textContent = 'PINs do not match — please try again.';
+                clearPinGroup('setPinBox');
+                clearPinGroup('confirmPinBox');
+                setTimeout(() => document.getElementById('setPinBox0').focus(), 50);
+                return;
+            }
+
+            localStorage.setItem(BSC_PIN_KEY, pin1);
+            sessionStorage.setItem(BSC_UNLOCKED_KEY, 'true');
+            const email = document.getElementById('setPinTargetEmail').value;
+            closeSetPinModal();
+            doSwitchAccount(email);
+        }
+
+        function showLockedModal(email) {
+            document.getElementById('pinTargetEmail').value = email;
+            document.getElementById('pinOverlay').style.display = 'flex';
+            document.getElementById('pinError').textContent = '';
+            document.getElementById('pinLockedMsg').style.display = 'block';
+            document.getElementById('pinVerifyBtn').style.display = 'none';
+            clearPinGroup('pinBox');
+            for (let i = 0; i < 4; i++) {
+                const b = document.getElementById(`pinBox${i}`);
+                if (b) b.disabled = true;
+            }
+        }
+
+        function closePinModal() {
+            document.getElementById('pinOverlay').style.display = 'none';
+            for (let i = 0; i < 4; i++) {
+                const b = document.getElementById(`pinBox${i}`);
+                if (b) b.disabled = false;
+            }
+        }
+
+        function closeSetPinModal() {
+            document.getElementById('setPinOverlay').style.display = 'none';
+        }
+
+        function usePasswordInstead() {
+            const email = document.getElementById('pinTargetEmail').value;
+            closePinModal();
             window.location.href = `/login.html?mode=switch&email=${encodeURIComponent(email)}&redirect=schengen`;
+        }
+
+        function resetPinToPassword() {
+            if (!confirm('This will clear your switching PIN. After verifying with your password you can set a new one. Continue?')) return;
+            const email = document.getElementById('pinTargetEmail').value;
+            localStorage.removeItem(BSC_PIN_KEY);
+            sessionStorage.removeItem(BSC_UNLOCKED_KEY);
+            sessionStorage.removeItem(BSC_ATTEMPTS_KEY);
+            closePinModal();
+            window.location.href = `/login.html?mode=switch&email=${encodeURIComponent(email)}&redirect=schengen`;
+        }
+
+        function doSwitchAccount(email) {
+            localStorage.setItem('travel_active_account', email);
+            window.location.reload();
+        }
+
+        // ── iOS Install Banner ───────────────────────────────────────────────
+
+        function checkIOSInstallBanner() {
+            const isIOS        = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.navigator.standalone === true;
+            const dismissed    = localStorage.getItem('bsc_ios_banner_dismissed') === 'true';
+            if (isIOS && !isStandalone && !dismissed) {
+                document.getElementById('iosInstallBanner').style.display = 'flex';
+            }
+        }
+
+        function dismissIOSBanner() {
+            localStorage.setItem('bsc_ios_banner_dismissed', 'true');
+            document.getElementById('iosInstallBanner').style.display = 'none';
         }
 
         async function apiCall(endpoint, options = {}) {
@@ -1500,6 +1760,7 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
+            checkIOSInstallBanner();
             const btn = document.getElementById('install-button');
             if (btn) btn.addEventListener('click', () => {
                 if (deferredPrompt) {
@@ -1517,5 +1778,67 @@
             if (ip) ip.style.display = 'none';
         });
     </script>
+    <!-- ── PIN Entry Modal ── -->
+    <div id="pinOverlay" class="pin-overlay">
+        <div class="pin-modal">
+            <div class="pin-title">🔐 Switch Account</div>
+            <div class="pin-subtitle">Enter your 4-digit switching PIN</div>
+            <input type="hidden" id="pinTargetEmail">
+            <div class="pin-boxes">
+                <input type="number" class="pin-box" id="pinBox0" inputmode="numeric" min="0" max="9">
+                <input type="number" class="pin-box" id="pinBox1" inputmode="numeric" min="0" max="9">
+                <input type="number" class="pin-box" id="pinBox2" inputmode="numeric" min="0" max="9">
+                <input type="number" class="pin-box" id="pinBox3" inputmode="numeric" min="0" max="9">
+            </div>
+            <div class="pin-error" id="pinError"></div>
+            <div id="pinLockedMsg" class="pin-locked-msg" style="display:none;">
+                🔒 Too many incorrect attempts. Please verify with your password or reset your PIN.
+            </div>
+            <button class="pin-btn" id="pinVerifyBtn" onclick="verifyPin()">Verify PIN</button>
+            <button class="pin-btn secondary" onclick="closePinModal()">Cancel</button>
+            <div class="pin-links">
+                <span class="pin-link" onclick="usePasswordInstead()">Use password instead</span>
+                &nbsp;·&nbsp;
+                <span class="pin-link" onclick="resetPinToPassword()">Reset PIN</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Set PIN Modal (first time) ── -->
+    <div id="setPinOverlay" class="pin-overlay">
+        <div class="pin-modal">
+            <div class="pin-title">🔐 Set Switching PIN</div>
+            <div class="pin-subtitle">Create a 4-digit PIN so you can switch between accounts without entering your password each time</div>
+            <input type="hidden" id="setPinTargetEmail">
+            <p class="pin-label">Enter PIN</p>
+            <div class="pin-boxes">
+                <input type="number" class="pin-box" id="setPinBox0" inputmode="numeric" min="0" max="9">
+                <input type="number" class="pin-box" id="setPinBox1" inputmode="numeric" min="0" max="9">
+                <input type="number" class="pin-box" id="setPinBox2" inputmode="numeric" min="0" max="9">
+                <input type="number" class="pin-box" id="setPinBox3" inputmode="numeric" min="0" max="9">
+            </div>
+            <p class="pin-label">Confirm PIN</p>
+            <div class="pin-boxes">
+                <input type="number" class="pin-box" id="confirmPinBox0" inputmode="numeric" min="0" max="9">
+                <input type="number" class="pin-box" id="confirmPinBox1" inputmode="numeric" min="0" max="9">
+                <input type="number" class="pin-box" id="confirmPinBox2" inputmode="numeric" min="0" max="9">
+                <input type="number" class="pin-box" id="confirmPinBox3" inputmode="numeric" min="0" max="9">
+            </div>
+            <div class="pin-error" id="setPinError"></div>
+            <button class="pin-btn" onclick="confirmSetPin()">Set PIN & Switch</button>
+            <button class="pin-btn secondary" onclick="closeSetPinModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ── iOS Install Banner ── -->
+    <div id="iosInstallBanner" class="ios-install-banner">
+        <div class="ios-banner-icon">📲</div>
+        <div class="ios-banner-text">
+            <strong>Install Best Schengen Calculator</strong>
+            Tap <span class="ios-share-chip">⎙ Share</span> then tap <strong>"Add to Home Screen"</strong>
+        </div>
+        <button class="ios-banner-close" onclick="dismissIOSBanner()">✕</button>
+    </div>
+
 </body>
 </html>
