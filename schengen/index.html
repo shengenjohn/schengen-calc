@@ -621,8 +621,11 @@
                     <div class="dropdown-action" onclick="addAccount()">
                         <span class="action-icon">➕</span> Add Account
                     </div>
-                    <div class="dropdown-action danger" onclick="signOut()">
-                        <span class="action-icon">🚪</span> Sign Out
+                    <div class="dropdown-action danger" onclick="signOutCurrent()">
+                        <span class="action-icon">🚪</span> Sign Out This Account
+                    </div>
+                    <div class="dropdown-action danger" onclick="signOutAll()" style="opacity:0.7;font-size:0.85rem;">
+                        <span class="action-icon">🔒</span> Sign Out All Accounts
                     </div>
                 </div>
             </div>
@@ -962,14 +965,40 @@
             window.location.href = '/login.html?mode=add-account&redirect=schengen';
         }
 
-        function signOut() {
-            if (confirm('Sign out of all accounts?')) {
+        function signOutCurrent() {
+            const activeEmail = getActiveEmail();
+            if (!confirm(`Sign out of ${activeEmail}?`)) return;
+            document.getElementById('accountDropdown').classList.remove('open');
+
+            const accounts = getAccounts().filter(a => a.email !== activeEmail);
+            localStorage.setItem('travel_accounts', JSON.stringify(accounts));
+
+            if (accounts.length > 0) {
+                // Switch to the first remaining account
+                localStorage.setItem('travel_active_account', accounts[0].email);
+                localStorage.setItem('travel_auth_token', accounts[0].token);
+                localStorage.setItem('travel_user', JSON.stringify(accounts[0]));
+                window.location.reload();
+            } else {
+                // No accounts left — go to login
                 localStorage.removeItem('travel_accounts');
                 localStorage.removeItem('travel_active_account');
                 localStorage.removeItem('travel_auth_token');
                 localStorage.removeItem('travel_user');
+                sessionStorage.removeItem('bsc_switch_unlocked');
                 window.location.href = '/login.html';
             }
+        }
+
+        function signOutAll() {
+            if (!confirm('Sign out of all accounts on this device?')) return;
+            localStorage.removeItem('travel_accounts');
+            localStorage.removeItem('travel_active_account');
+            localStorage.removeItem('travel_auth_token');
+            localStorage.removeItem('travel_user');
+            sessionStorage.removeItem('bsc_switch_unlocked');
+            sessionStorage.removeItem('bsc_pin_attempts');
+            window.location.href = '/login.html';
         }
 
         function switchAccount(email) {
@@ -1268,7 +1297,7 @@
                             exitDate:  t.return_date,
                             country:   t.destination_country,
                             tripType:  t.trip_type || 'tourism',
-                            notes:     t.notes || '',
+                            notes:     (t.trip_name && t.trip_name !== `${t.destination_country} Trip`) ? t.trip_name : '',
                             days:      calculateDaysBetween(t.departure_date, t.return_date)
                         }));
                         console.log(`✅ Loaded ${trips.length} trips from D1 for ${window.currentUser.email}`);
