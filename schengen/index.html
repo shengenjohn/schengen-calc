@@ -1224,6 +1224,17 @@
                 }
             };
             const response = await fetch(`${TRIPS_API_URL}${endpoint}`, { ...defaultOpts, ...options });
+            if (response.status === 401) {
+                // Login has expired: forget it on this device and ask the user to sign in again
+                const activeEmail = localStorage.getItem('travel_active_account');
+                const remaining = JSON.parse(localStorage.getItem('travel_accounts') || '[]').filter(a => a.email !== activeEmail);
+                localStorage.setItem('travel_accounts', JSON.stringify(remaining));
+                localStorage.removeItem('travel_active_account');
+                localStorage.removeItem('travel_auth_token');
+                localStorage.removeItem('travel_user');
+                window.location.href = '/login.html?redirect=schengen';
+                throw new Error('Session expired');
+            }
             return await response.json();
         }
 
